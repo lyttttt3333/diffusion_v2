@@ -23,6 +23,7 @@ class PackBatteryEnv(BaseSimulationEnv):
         num_obj_done: Optional[int] = None,
         assign_num: Optional[bool] = None,
         seed: Optional[int] = None,
+        overwrite = None,
         **renderer_kwargs,
     ):
         super().__init__(
@@ -96,6 +97,27 @@ class PackBatteryEnv(BaseSimulationEnv):
             ]
         )
 
+        obj_available = np.array(["battery_3", "battery_4", "battery_5"])
+
+        
+
+        # Set up battery arrangement
+
+        if overwrite is None:
+            self.done_index, self.free_list = self.get_done_pose_distribution(self.num_obj_done)
+            self.obj_done_list = self.np_random.choice(obj_available, self.num_obj_done)
+            self.obj_wait_list = self.np_random.choice(obj_available, self.num_obj_wait)
+            self.target_idx = self.np_random.choice(self.free_list)
+
+        else:
+            self.done_index = overwrite["done_index"]
+            self.obj_done_list = overwrite["obj_done_list"]
+            self.obj_wait_list = overwrite["obj_wait_list"]
+            self.target_idx = overwrite["target_idx"]
+
+
+            
+
         # Construct scene
         scene_config = sapien.SceneConfig()
         self.scene = self.engine.create_scene(config=scene_config)
@@ -122,17 +144,14 @@ class PackBatteryEnv(BaseSimulationEnv):
         self.obj_wait = []
         self.obj_done = []
         self.obj_layout = []
+        
         # Load object
-        obj_available = np.array(["battery_3", "battery_4", "battery_5"])
-        obj_wait_list = self.np_random.choice(obj_available, self.num_obj_wait)
-        # obj_wait_list[0] = "battery_3"
-        obj_available = np.array(["battery_3", "battery_4", "battery_5"])
 
         success_flag = False
         while not success_flag:
             success_flag = True
             obj_pose_list = []
-            for obj_name in obj_wait_list:
+            for obj_name in self.obj_wait_list:
                 position, euler, stand_flag, success = self.get_obj_wait_pose(
                     obj_pose_list, force_stand=True
                 )
@@ -142,7 +161,7 @@ class PackBatteryEnv(BaseSimulationEnv):
                 obj_pose_list.append(
                     {"position": position, "euler": euler, "stand": stand_flag}
                 )
-        for idx, obj_name in enumerate(obj_wait_list):
+        for idx, obj_name in enumerate(self.obj_wait_list):
             actor = load_obj(self.scene, obj_name, density=5000)
             pose = sapien.Pose(
                 obj_pose_list[idx]["position"],
@@ -170,23 +189,10 @@ class PackBatteryEnv(BaseSimulationEnv):
             )
         assert len(self.obj_wait) == 1
 
-        candidate_index, free_list = self.get_done_pose_distribution(self.num_obj_done)
-        self.free_list = free_list
-        self.target_idx = self.np_random.choice(list(range(self.num_slot_wait)))
-
-        print(candidate_index, self.target_idx)
-
-        if self.target_idx in candidate_index:
-            candidate_index.remove(self.target_idx)
-
-        print(candidate_index, self.target_idx)
-
-        obj_done_list = self.np_random.choice(obj_available, len(candidate_index))
-
-        for idx, obj_name in enumerate(obj_done_list):
+        for idx, obj_name in enumerate(self.obj_done_list):
             actor = load_obj(self.scene, obj_name, density=1000)
             assert idx < len(self.obj_done_offset_list)
-            position_idx = candidate_index[idx]
+            position_idx = self.done_index[idx]
             assert idx < len(self.obj_done_offset_list)
             position, euler = self.get_obj_done_pose(position_idx)
             pose = sapien.Pose(
@@ -293,45 +299,20 @@ class PackBatteryEnv(BaseSimulationEnv):
         return init_poses
 
     def get_layout(self):
-        pose_list = []
-        for idx, item in enumerate(self.obj_layout):
-            if idx == 0:
-                position = item["position"]
-                euler = item["euler"]
-                pose = np.concatenate([position, euler], axis=-1)[None, :]
-                pose_list.append(pose)
-        if len(pose_list) != 0:
-            target_layout = np.concatenate(pose_list, axis=0)
-        else:
-            target_layout = np.array([0])
 
         pose_list = []
         for idx, item in enumerate(self.obj_layout):
-            if idx != 0:
-                position = item["position"]
-                euler = item["euler"]
-                pose = np.concatenate([position, euler], axis=-1)[None, :]
-                pose_list.append(pose)
-        if len(pose_list) != 0:
-            wait_layout = np.concatenate(pose_list, axis=0)
-        else:
-            wait_layout = np.array([0])
-
-        pose_list = []
-        for idx, item in enumerate(self.obj_done):
             position = item["position"]
-            euler = item["euler"]
-            pose = np.concatenate([position, euler], axis=-1)[None, :]
-            pose_list.append(pose)
-        if len(pose_list) != 0:
-            done_layout = np.concatenate(pose_list, axis=0)
-        else:
-            done_layout = np.array([0])
+            pose_list.append(position[None, :])
+        obj_layout = np.concatenate(pose_list, axis=0)
+
         return {
-            "target_layout": target_layout,
-            "wait_layout": wait_layout,
-            "done_layout": done_layout,
+            "init": np.array([0]),
+            "init_layout": obj_layout,
+            "tgt": np.array([self.target_idx]),
+            "tgt_layout": self.obj_done_offset_list,
         }
+
 
     def get_goal(self):
         target_idx = self.np_random.choice(self.free_list)

@@ -8,8 +8,9 @@ import numpy as np
 import sapien.core as sapien
 import transforms3d
 from d3fields.utils.text_embedding import from_text_to_embedding
-from diffusion_policy.common.kinematics_utils import KinHelper
 from instruction_generate.generate_instruction import instruction_generater
+from diffusion_policy.common.kinematics_utils import KinHelper
+
 from omegaconf import OmegaConf
 
 # from diffusion_policy.common.data_utils import save_dict_to_hdf5
@@ -536,7 +537,6 @@ if __name__ == "__main__":
             manip_obj=manip_obj,
             vis_info=vis_info,
             slackness_type=slackness_type,
-            # output_type=args.output_type,
             task_level_multimodality=args.task_level_multimodality,
             assign_idx=assign_idx,
             recorder=recorder,

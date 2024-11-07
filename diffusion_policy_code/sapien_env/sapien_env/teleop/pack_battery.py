@@ -7,9 +7,12 @@ import hydra
 import numpy as np
 import transforms3d
 from diffusion_policy.common.data_utils import save_dict_to_hdf5
+from d3fields.utils.text_embedding import from_text_to_embedding
+from instruction_generate.generate_instruction import instruction_generater
 from diffusion_policy.common.kinematics_utils import KinHelper
 from omegaconf import OmegaConf
 from pathlib import Path
+import random
 
 from sapien_env.gui.teleop_gui_trossen import (
     META_CAMERA,
@@ -51,6 +54,7 @@ def task_to_cfg(
     num_obj_wait: Optional[int] = None,
     num_slot_wait: Optional[int] = None,
     assign_num: Optional[bool] = None,
+    overwrite = None,
 ):
     if task == "hang_mug":
         cfg = OmegaConf.create(
@@ -207,8 +211,8 @@ def task_to_cfg(
             }
         )
     elif task == "pack_battery":
-            cfg = OmegaConf.create(
-                {
+            
+            cfg = {
                     "_target_": "sapien_env.rl_env.pack_battery_env.PackBatteryRLEnv",
                     "use_gui": True,
                     "robot_name": "panda",
@@ -222,8 +226,8 @@ def task_to_cfg(
                     "num_obj_done": num_obj_done,
                     "assign_num": assign_num,
                     "seed": seed,
+                    "overwrite" : overwrite,
                 }
-            )
             policy_cfg = OmegaConf.create(
                 {
                     "_target_": "sapien_env.teleop.pack_battery_scripted_policy.SingleArmPolicy",
@@ -251,6 +255,9 @@ def main_env(
     num_obj_wait: Optional[int] = None,
     num_slot_wait: Optional[int] = None,
     assign_num: Optional[bool] = None,
+    slackness_type = None,
+    vis_info = None,
+    overwrite = False,
 ):
     # initialize env
     os.system(f"mkdir -p {dataset_dir}")
@@ -269,10 +276,11 @@ def main_env(
         num_obj_wait=num_obj_wait,
         num_slot_wait=num_slot_wait,
         assign_num=assign_num,
+        overwrite = overwrite,
     )
 
-    with open(os.path.join(dataset_dir, "config.yaml"), "w") as f:
-        OmegaConf.save(cfg, f.name)
+    # with open(os.path.join(dataset_dir, "config.yaml"), "w") as f:
+    #     OmegaConf.save(cfg, f.name)
 
     # collect data
     env: BaseRLEnv = hydra.utils.instantiate(cfg)
@@ -296,8 +304,27 @@ def main_env(
 
     dataset_path = os.path.join(dataset_dir, f"episode_{episode_idx}.hdf5")
 
+    current_file_path = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file_path)
+    template_path = os.path.join(current_dir, "instruction_generate", "template.json")
+
+    init_configuration = env.get_layout()
+
+    generater = instruction_generater(
+        seed=episode_idx,
+        keys=["mug", "branch"],
+        template_path=template_path,
+        slackness_type=slackness_type,
+    )
+    descriptive_element = generater.from_config_to_string(
+        init_configuration, manip_obj, vis_info
+    )
+    instruction = generater.fill_in_template(descriptive_element)
+    print(instruction)
+    embedding = from_text_to_embedding(instruction)
+    init_configuration["embedding"] = embedding
+
     # set up data saving hyperparameters
-    init_poses = env.get_init_poses()
     data_dict = {
         "observations": {
             "joint_pos": [],
@@ -312,10 +339,10 @@ def main_env(
         "joint_action": [],
         "cartesian_action": [],
         "progress": [],
-        "info": {"init_poses": init_poses},
-        "attention_config":{},
-        "env_config":{},
+        "attention_config": {},
     }
+
+    data_dict["attention_config"] = init_configuration
 
     cams = gui.cams
     for cam in cams:
@@ -467,16 +494,16 @@ if __name__ == "__main__":
     from tqdm import tqdm
 
     wait_num_obj = 4
-    wait_num_slot = 4
+    wait_num_slot = 12
 
     # data_img_{wait_num_obj}x{wait_num_slot}
 
     parser = argparse.ArgumentParser(description="Scripted policy rollout")
     parser.add_argument("--start_idx", type=int,default=0)
-    parser.add_argument("--end_idx", type=int,default=1)
-    parser.add_argument("--dataset_dir", default=f"/media/yixuan_2T/lyt/img_data/{wait_num_obj}x{wait_num_slot}")
+    parser.add_argument("--end_idx", type=int,default=3)
+    parser.add_argument("--dataset_dir", default=f"/home/yitong/diffusion/data_train/test_battery")
     parser.add_argument("--task_name", default="pack_battery")
-    parser.add_argument("--headless", default=True)
+    parser.add_argument("--headless", default=False)
     parser.add_argument("--obj_name", default=None)
     parser.add_argument("--extra_obj_name", default=None)
     parser.add_argument("--task_level_multimodality", action="store_true")
@@ -491,6 +518,8 @@ if __name__ == "__main__":
 
     assert args.start_idx < args.end_idx
 
+    vis_info = None
+
     save_repo_path = f"sapien_env"
     save_repo_dir = os.path.join(args.dataset_dir, save_repo_path)
     os.system(f"mkdir -p {save_repo_dir}")
@@ -501,6 +530,45 @@ if __name__ == "__main__":
         if sub_dir not in ignore_list:
             os.system(f"cp -r {os.path.join(curr_repo_dir, sub_dir)} {save_repo_dir}")
 
+
+    obj_available = np.array(["battery_3", "battery_4", "battery_5"])
+    obj_color = np.array(["green", "purple", "blue"])
+
+    
+    vis_info = {
+        "mug": {
+            obj_available[0]: [obj_color[0], obj_color[1], obj_color[2]],
+            obj_available[1]: [obj_color[1], obj_color[0], obj_color[2]],
+            obj_available[2]: [obj_color[2], obj_color[0], obj_color[1]],
+        },
+        "branch": {
+            "0": ["right-topmost branch", "left-topmost branch"],
+            "1": ["left-topmost branch", "right-topmost branch"],
+            "2": ["middle-right branch", "middle-left branch"],
+            "3": ["right-topmost branch", "left-topmost branch"],
+            "4": ["left-topmost branch", "right-topmost branch"],
+            "5": ["middle-right branch", "middle-left branch"],
+            "6": ["right-topmost branch", "left-topmost branch"],
+            "7": ["left-topmost branch", "right-topmost branch"],
+            "8": ["middle-right branch", "middle-left branch"],
+            "9": ["right-topmost branch", "left-topmost branch"],
+            "10": ["left-topmost branch", "right-topmost branch"],
+            "11": ["middle-right branch", "middle-left branch"],
+        },
+    }
+
+
+    def get_done_pose_distribution(num, np_random):
+        index_pool = list(range(12))
+        sel_index = np_random.choice(index_pool, num, replace=False).tolist()
+        free_list = []
+        for idx in index_pool:
+            if idx in sel_index:
+                pass
+            else:
+                free_list.append(idx)
+        return sel_index, free_list
+
     for i in tqdm(
         range(args.start_idx, args.end_idx),
         colour="green",
@@ -509,6 +577,31 @@ if __name__ == "__main__":
     ):
         success = False
         retry = 0
+
+        np_random = np.random
+        np_random.seed(i)
+
+        slackness_type = random.choice(
+            ["no_slackness", "mug_slackness", "branch_slackness", "both_slackness"]
+        )
+
+        # Set up battery arrangement
+        done_index, free_list = get_done_pose_distribution(args.num_obj_done, np_random)
+        obj_done_list = np_random.choice(obj_available, args.num_obj_done)
+        obj_wait_list = np_random.choice(obj_available, args.num_obj_wait)
+
+        target_idx = random.choice(free_list)
+        assert target_idx not in done_index
+
+        overwrite = {
+            "done_index" : done_index,
+            "obj_done_list" : obj_done_list,
+            "obj_wait_list" : obj_wait_list,
+            "target_idx" : target_idx,
+        }
+
+        
+
         if True:
             success = main_env(
                 episode_idx=i,
@@ -516,8 +609,8 @@ if __name__ == "__main__":
                 dataset_dir=args.dataset_dir,
                 headless=args.headless,
                 task_name=args.task_name,
-                manip_obj=args.obj_name,
-                extra_manip_obj=args.extra_obj_name,
+                manip_obj=["battery_3", "battery_4", "battery_5"],
+                extra_manip_obj=["battery_3", "battery_4", "battery_5"],
                 task_level_multimodality=args.task_level_multimodality,
                 stand_mode=args.stand_mode,
                 simple_mode=args.simple_mode,
@@ -526,6 +619,9 @@ if __name__ == "__main__":
                 num_obj_wait=args.num_obj_wait,
                 num_slot_wait=args.num_slot_wait,
                 assign_num=args.assign_num,
+                slackness_type="no_slackness",
+                vis_info=vis_info,
+                overwrite = overwrite,
             )
             # if not success:
             #     retry += 1

@@ -60,22 +60,6 @@ class HangMugEnv(BaseSimulationEnv):
             collision_shape="nonconvex",
         )
 
-        # Load object
-        # pose = transforms3d.euler.euler2quat(-np.pi/2,0,-np.pi/2, axes="sxyz")
-        # pose = sapien.Pose(p=np.array([-0.2, -0.1, 0.05]),q=pose)
-
-        # if infer:
-        #     import random
-
-        #     obj_pool = [
-        #         "nescafe_mug_1",
-        #         "nescafe_mug_2",
-        #         "nescafe_mug_3",
-        #         "nescafe_mug_4",
-        #     ]
-        #     extra_manip_obj_num = random.randint(0, 2)
-        #     extra_manip_obj = random.choices(obj_pool, k=extra_manip_obj_num)
-
         self.manip_obj_name = manip_obj
         self.manipulated_object = []
         for obj in manip_obj:
