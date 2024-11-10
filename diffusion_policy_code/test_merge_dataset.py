@@ -6,33 +6,34 @@ import os
 if True:
     dir_name = "merge_pcd_540"
 
-    cache_zarr_path_list = ["/home/yitong/diffusion/data_train/hang_mug_360/pcd_000_180.zarr.zip",
-                            "/home/yitong/diffusion/data_train/hang_mug_360/pcd_180_360.zarr.zip",
-                            "/home/yitong/diffusion/data_train/hang_mug_360/pcd_360_540.zarr.zip"]
+    cache_zarr_path_list = ["/home/yitong/diffusion/data_train/battery_4/cache.zarr.zip",]
 
-    sel_num_list = [180, 180,180]
+    sel_num_list = [180]
     cache_zarr_path_to_save_root = "/home/yitong/diffusion/data_train"
     cache_zarr_path_to_save_dir = os.path.join(cache_zarr_path_to_save_root,dir_name)
     if not os.path.exists(cache_zarr_path_to_save_dir):
         os.mkdir(cache_zarr_path_to_save_dir)
 
-    root = zarr.group(zarr.MemoryStore())
-    data_group = root.require_group("data", overwrite=True)
-    meta_group = root.require_group("meta", overwrite=True)
+    # root = zarr.group(zarr.MemoryStore())
+    # data_group = root.require_group("data", overwrite=True)
+    # meta_group = root.require_group("meta", overwrite=True)
 
-    action_list = list()
-    d3fields_list = list()
-    embedding_list = list()
-    episode_ends_list = list()
+    # action_list = list()
+    # d3fields_list = list()
+    # embedding_list = list()
+    # episode_ends_list = list()
 
     abs_last_part_end = 0
     for idx, cache_zarr_path in enumerate(cache_zarr_path_list):
-        with zarr.ZipStore(cache_zarr_path, mode="r") as zip_store:
-            replay_buffer = ReplayBuffer.copy_from_store(
-                src_store=zip_store, store=zarr.MemoryStore()
-            )
-        a = replay_buffer.keys()
-        sel_num = sel_num_list[idx]
+        from filelock import FileLock
+        cache_lock_path = cache_zarr_path + ".lock"
+        with FileLock(cache_lock_path):
+            with zarr.ZipStore(cache_zarr_path, mode="r") as zip_store:
+                replay_buffer = ReplayBuffer.copy_from_store(
+                    src_store=zip_store, store=zarr.MemoryStore()
+                )
+            a = replay_buffer.keys()
+            sel_num = sel_num_list[idx]
 
 
         episode_ends = replay_buffer.meta["episode_ends"][:sel_num] + abs_last_part_end

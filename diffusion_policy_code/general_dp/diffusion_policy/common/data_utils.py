@@ -763,7 +763,7 @@ def color_pts(full_pts):
     attn_pts = full_pts[full_pts[:, -1] == 1][:, :3]
     tensor_none_attn = torch.from_numpy(none_attn_pts).to(device, dtype=dtype)
     tensor_attn = torch.from_numpy(attn_pts).to(device, dtype=dtype)
-    if tensor_none_attn.shape[0] == 0:
+    if (tensor_none_attn.shape[0] == 0) or (tensor_attn.shape[0] == 0):
         return full_pts
     dist = torch.cdist(tensor_none_attn, tensor_attn)
     min_dist = torch.min(dist, dim=-1)[0]
@@ -851,7 +851,7 @@ def d3fields_proc_attn(
     dynamics_dict = {"static": ["bg", "branch"], "movable": ["mug"]}
 
 
-    for t in range(T):
+    for t in range(1):
         rgb = color_seq[t]#[..., ::-1].copy()
         obs = {
             "color": rgb,
@@ -1029,7 +1029,7 @@ def d3fields_proc_attn(
                 pcd_exclude = np.concatenate([movable_pcd,robot_pcd],axis=0)
                 if env_num <= 0:
                     raise
-                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num)
+                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num, threshold=0.01)
                 fusion.env_pcd = env_pcd
             else:
                 pass
@@ -1096,11 +1096,10 @@ def d3fields_proc(
     configuration_dict = {}
     for key in keys:
         configuration_dict[key] = attention_config[key][:]
-    configuration_dict["tgt_layout"][-1] = np.array([0.0217115, 0.11065497, 0.26605847])
     
     ground_truth_dict = {}
-    ground_truth_dict["mug"] = configuration_dict["init_layout"][int(configuration_dict["init"][0])]
-    ground_truth_dict["branch"] = configuration_dict["tgt_layout"][int(configuration_dict["tgt"][0])]
+    ground_truth_dict["battery"] = configuration_dict["init_layout"][int(configuration_dict["init"][0])]
+    ground_truth_dict["slot"] = configuration_dict["tgt_layout"][int(configuration_dict["tgt"][0])]
 
     boundaries = shape_meta["info"]["boundaries"]
     use_attn = shape_meta["info"]["use_attn"]
@@ -1123,7 +1122,7 @@ def d3fields_proc(
     aggr_src_pts_color_ls = []
 
 
-    dynamics_dict = {"static": ["bg", "branch"], "movable": ["mug"]}
+    dynamics_dict = {"static": ["bg", "slot"], "movable": ["battery"]}
 
 
     for t in range(T):
@@ -1185,9 +1184,9 @@ def d3fields_proc(
 
 
             lib_root = "/home/yitong/diffusion/ref_lib"
-            lib_path = os.path.join(lib_root, "hang_mug")
+            lib_path = os.path.join(lib_root, "pack_battery")
 
-            ref_dict = load_ref(lib_path, ["mug", "branch"])
+            ref_dict = load_ref(lib_path, ["battery", "slot"])
 
             vis.update(src_dict)
             vis.semantic_cluster(ref_dict, 0)
@@ -1284,12 +1283,12 @@ def d3fields_proc(
             movable_pcd = np.concatenate(src_pts_list, axis =0)
             if fusion.env_pcd is None:
                 env_num = max_pts_num - movable_pcd.shape[0] - ee_pcd.shape[0]
-                y = obj_pcd[:,1]
-                obj_pcd = obj_pcd[y>0.06]
+                # y = obj_pcd[:,1]
+                # obj_pcd = obj_pcd[y>0.06]
                 pcd_exclude = np.concatenate([movable_pcd,robot_pcd],axis=0)
                 if env_num <= 0:
                     raise
-                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num)
+                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num, threshold=0.01)
                 fusion.env_pcd = env_pcd
             else:
                 pass

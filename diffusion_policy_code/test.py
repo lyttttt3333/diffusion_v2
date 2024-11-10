@@ -6,8 +6,14 @@ def color_bar(point):
     np.ones_like(point)
     return 
 
-# check h5py
+
 if True:
+    import imageio
+    imageio.plugins.freeimage.download()  # 如果提示缺少 FreeImage 插件
+    img = imageio.imread("your_image.jp2")  # 替换为 JPEG2000 格式的文件路径
+
+# check h5py
+if False:
     full = list()
     data_dir=f"/home/yitong/diffusion/data_train/data_img_1x1/episode_3.hdf5"     
     with h5py.File(data_dir,'r') as file:

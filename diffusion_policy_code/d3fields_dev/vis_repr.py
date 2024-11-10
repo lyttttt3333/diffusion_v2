@@ -29,7 +29,7 @@ def vis_main(scene):
 
     hyper_param_dict = {
         "pack": {
-            "data_path": "/home/yitong/diffusion/data_train/data_delta_test/episode_0.hdf5",
+            "data_path": "/home/yitong/diffusion/data_train/battery_1/episode_0.hdf5",
             "pca_path": "/home/yitong/diffusion/d3fields_dev/d3fields/pca_model/mug.pkl",
             "prompt": ['battery', 'crate'],
         }
@@ -38,7 +38,7 @@ def vis_main(scene):
     # define the path
     data_path = hyper_param_dict[scene]["data_path"]
     pca_path = hyper_param_dict[scene]["pca_path"]
-    result_path = f"/home/yitong/diffusion/data_train/data_realworld/fields/{scene}"
+    result_path = f"/home/yitong/diffusion/data_train/d3fields/fields/{scene}"
     os.system(f"mkdir -p {result_path}")
     query_texts = hyper_param_dict[scene]["prompt"]
     query_thresholds = [0.25]
@@ -53,7 +53,7 @@ def vis_main(scene):
     x_lower = -0.3
     x_upper =  0.3
     y_lower =  -0.3
-    y_upper =  0.25
+    y_upper =  0.4
     z_lower =  -0.3
     z_upper =  0.5
 
@@ -132,7 +132,7 @@ def vis_main(scene):
 
     # load pca and fusion
     # pca = pickle.load(open(pca_path, "rb"))
-    fusion = Fusion(num_cam=4, feat_backbone="dinov2", dtype=dtype, device=device)
+    fusion = Fusion(num_cam=5, feat_backbone="dinov2", dtype=dtype, device=device, grain=10)
 
     # define visualizer
     view_ctrl_info = {
@@ -162,35 +162,57 @@ def vis_main(scene):
     pcd.remove_statistical_outlier(nb_neighbors=5, std_ratio=0.2)
 
     fusion.update(obs)
+    
+    if False:
 
-    fusion.text_queries_for_inst_mask_no_track(
-        query_texts, query_thresholds, boundaries=boundaries, merge_iou=0.05
-    )
+        obj_pcd = fusion.extract_pcd_in_box(
+            boundaries=boundaries,
+            downsample=True,
+            downsample_r=0.002,
+        )
+
+        _, src_pts_list, _, _ = fusion.select_features_from_pcd(
+            obj_pcd,
+            80000,
+            per_instance=False,
+            use_seg=False,
+            use_dino=False,
+        )
+
+        vertices = src_pts_list[0]
+
+
+    # fusion.text_queries_for_inst_mask_no_track(
+    #     query_texts, query_thresholds, boundaries=boundaries, merge_iou=0.05
+    # )
 
     # visualize mesh
-    init_grid, grid_shape = create_init_grid(boundaries, step)
-    init_grid = init_grid.to(device=device, dtype=fusion.dtype)
+    else:
+        init_grid, grid_shape = create_init_grid(boundaries, step)
+        init_grid = init_grid.to(device=device, dtype=fusion.dtype)
 
-    print("eval init grid")
-    with torch.no_grad():
-        out = fusion.batch_eval(init_grid, return_names=[])
+        print("eval init grid")
+        with torch.no_grad():
+            out = fusion.batch_eval(init_grid, return_names=[])
 
-    # extract mesh
-    print("extract mesh")
-    vertices, triangles = fusion.extract_mesh(init_grid, out, grid_shape)
+        # extract mesh
+        print("extract mesh")
+        vertices, triangles = fusion.extract_mesh(init_grid, out, grid_shape)
+
+        np.save(f"{result_path}/triangles.npy", triangles)
 
     # eval mask and feature of vertices
     vertices_tensor = torch.from_numpy(vertices).to(device, dtype=dtype)
     print("eval mesh vertices")
     with torch.no_grad():
         out = fusion.batch_eval(
-            vertices_tensor, return_names=["dino_feats", "mask", "color_tensor"]
+            vertices_tensor, return_names=["dino_feats", "color_tensor"]
         )
 
     # create mask mesh
-    mask_meshes = fusion.create_instance_mask_mesh(vertices, triangles, out, out_o3d=True)
-    for m_i, mask_mesh in enumerate(mask_meshes):
-        o3d_vis.update_custom_mesh(mask_mesh, f"mask_{m_i}")
+    # mask_meshes = fusion.create_instance_mask_mesh(vertices, triangles, out, out_o3d=True)
+    # for m_i, mask_mesh in enumerate(mask_meshes):
+    #     o3d_vis.update_custom_mesh(mask_mesh, f"mask_{m_i}")
 
     # create feature mesh
     # feature_mesh, pca_max, pca_min = fusion.create_descriptor_mesh(
@@ -205,20 +227,18 @@ def vis_main(scene):
     # o3d_vis.update_custom_mesh(feature_mesh, "feature")
 
     # create color mesh
-    color_mesh = fusion.create_color_mesh(vertices, triangles, out, out_o3d=True)
-    o3d_vis.update_custom_mesh(color_mesh, "color")
+    # color_mesh = fusion.create_color_mesh(vertices, triangles, out, out_o3d=True)
+    # o3d_vis.update_custom_mesh(color_mesh, "color")
 
     np.save(f"{result_path}/vertices.npy", vertices)
-    np.savetxt(f"{result_path}/vertices.txt", vertices)
-    np.save(f"{result_path}/triangles.npy", triangles)
     np.save(f"{result_path}/vertices_feats.npy", out["dino_feats"].cpu().numpy())
     np.save(f"{result_path}/vertices_color.npy", out["color_tensor"].cpu().numpy())
 
     # render them
-    for m_i, mask_mesh in enumerate(mask_meshes):
-        o3d_vis.render([f"mask_{m_i}"], save_name=f"d3f_mask_{m_i}", blocking=False)
-    o3d_vis.render(["feature"], save_name="d3f_feature", blocking=False)
-    o3d_vis.render(["color"], save_name="d3f_color", blocking=False)
+    # for m_i, mask_mesh in enumerate(mask_meshes):
+    #     o3d_vis.render([f"mask_{m_i}"], save_name=f"d3f_mask_{m_i}", blocking=False)
+    # o3d_vis.render(["feature"], save_name="d3f_feature", blocking=False)
+    # o3d_vis.render(["color"], save_name="d3f_color", blocking=False)
 
 
 if __name__ == "__main__":

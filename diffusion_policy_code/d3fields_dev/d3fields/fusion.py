@@ -244,7 +244,7 @@ def rm_mask_close_to_pcd(depth, mask, pcd, K, pose):
 
 class Fusion:
     def __init__(
-        self, num_cam, feat_backbone="dinov2", device="cuda:0", dtype=torch.float32
+        self, num_cam, feat_backbone="dinov2", device="cuda:0", dtype=torch.float32, grain=20,
     ):
         self.device = device
         self.dtype = dtype
@@ -393,6 +393,8 @@ class Fusion:
         self.attn_list = None
         self.exclude_camera = None
         self.env_pcd = None
+
+        self.grain = grain
 
     def eval(self, pts, return_names=["dino_feats", "mask"], return_inter=False):
         # :param pts: (N, 3) torch tensor in world frame
@@ -741,8 +743,8 @@ class Fusion:
         self.num_cam = obs["color"].shape[0]
         color = obs["color"]
         params = {
-            "patch_h": color.shape[1] // 10,
-            "patch_w": color.shape[2] // 10,
+            "patch_h": color.shape[1] // self.grain,
+            "patch_w": color.shape[2] // self.grain,
         }
         if update_dino:
             features = self.extract_features(color, params)

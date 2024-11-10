@@ -30,8 +30,12 @@ def compute_similarity_tensor(src_feat_map, tgt_feat):
     similarity = torch.nn.functional.cosine_similarity(
         src_feat_map, tgt_feat[None], dim=1
     )
-    # np.savetxt("/home/yitong/diffusion/data_train/data_realworld/tgt_feat_slot.txt", tgt_feat.cpu().numpy())
-    similarity[similarity<0.7]=0
+    similarity = torch.nan_to_num(similarity, nan=0.0)
+    similarity = (similarity - torch.min(similarity)) / (
+        torch.max(similarity) - torch.min(similarity)
+    )
+    # np.savetxt("/home/yitong/diffusion/ref_lib/pack_battery/slot_2.txt", tgt_feat.cpu().numpy())
+    similarity[similarity<0.75]=0
 
     assert similarity.shape[0] == src_feat_map.shape[0]
     return similarity
@@ -51,8 +55,8 @@ def vis_corr(
     renderer,
     bbox=None,
 ):
-    # x = 396
-    # y = 270
+    # x = 340
+    # y = 320
     cmap = cm.get_cmap("viridis")
 
     num_tgt = len(tgt_info["color"])
@@ -68,7 +72,7 @@ def vis_corr(
     src_feat_tensor = src_info["dino_feats"][
         int(y * feats_h / img_h), int(x * feats_w / img_w)
     ]
-    # src_feat_tensor = torch.from_numpy(np.load("/media/yitong/932e6800-38b1-46b9-a874-381bb69f0e77/diff_llm/tg_ft_crate.npy")).to(src_feat_tensor.device).to(src_feat_tensor.dtype)
+    # src_feat_tensor = torch.from_numpy(np.loadtxt("/home/yitong/diffusion/ref_lib/pack_battery/battery_1.txt")).to(src_feat_tensor.device).to(src_feat_tensor.dtype)
     tgt_feat_sims_tensor = compute_similarity_tensor(
         vertices_feats_tensor, src_feat_tensor
     )  # [N]
@@ -339,13 +343,13 @@ def interactive_corr(
     return param["pixels"]
 
 
-def extract_dinov2_feats(imgs, model):
+def extract_dinov2_feats(imgs, model, grain):
     device = "cuda"
     dtype = torch.float16
     K, H, W, _ = imgs.shape
 
-    patch_h = H // 20
-    patch_w = W // 20
+    patch_h = H // grain
+    patch_w = W // grain
     # feat_dim = 384 # vits14
     # feat_dim = 768 # vitb14
     feat_dim = 1024  # vitl14
@@ -384,14 +388,17 @@ def main():
     o3d_vis.start()
     device = "cuda"
 
+    img_index = 4
+    grain = 10
+
     hyper_param_dict = {
         "pack": {
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/blue_can.jpg",
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/red_can.jpg",
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/blue_can_small.png",
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/red_can_small.png",
-            "src_path": "/home/yitong/diffusion/data_train/data_realworld/fields/pack/color_2.png",
-            "tgt_hdf5": "/home/yitong/diffusion/data_train/data_realworld/battery.hdf5",
+            "src_path": f"/home/yitong/diffusion/data_train/d3fields/fields/pack/color_{img_index}.png",
+            "tgt_hdf5": "/home/yitong/diffusion/data_train/battery_1/episode_0.hdf5",
         },
         # "mug": {
         #     "src_path": "/home/ywang/d3fields_dev/data/wild/mug/0.png",
@@ -412,13 +419,13 @@ def main():
     }
 
     scene = "pack"
-    tgt_dir = f"/home/yitong/diffusion/data_train/data_realworld/fields/{scene}"
+    tgt_dir = f"/home/yitong/diffusion/data_train/d3fields/fields/{scene}"
     src_path = hyper_param_dict[scene]["src_path"]
     tgt_hdf5 = hyper_param_dict[scene]["tgt_hdf5"]
     bbox = {
         "x_upper": 0.3,
         "x_lower": -0.3,
-        "y_upper": 0.3,
+        "y_upper": 0.40,
         "y_lower": -0.4,
         "z_upper": 0.5,
         "z_lower": -0.3,
@@ -428,7 +435,7 @@ def main():
     dinov2_model = dinov2_model.to(device=device, dtype=torch.float16)
 
     src_img = cv2.imread(src_path)[..., ::-1]
-    src_feats = extract_dinov2_feats(src_img[None], dinov2_model)[0]
+    src_feats = extract_dinov2_feats(src_img[None], dinov2_model, grain)[0]
 
     src_info = {"color": cv2.imread(src_path)[..., ::-1], "dino_feats": src_feats}
 
@@ -438,17 +445,18 @@ def main():
         "right_bottom_view",
         "left_top_view",
         "right_top_view",
+        "direct_up_view",
     ]
-    cam_name_list = [
-        "camera_0",
-        "camera_1",
-        "camera_2",
-        "camera_3",
-        "camera_4",
-    ]
-    camera_name = cam_name_list[2]
-    pose = tgt_data_dict["observations"]["images"][f"{camera_name}_extrinsics"][0]
-    K = tgt_data_dict["observations"]["images"][f"{camera_name}_intrinsics"][0]
+    # cam_name_list = [
+    #     "camera_0",
+    #     "camera_1",
+    #     "camera_2",
+    #     "camera_3",
+    #     "camera_4",
+    # ]
+    camera_name = cam_name_list[img_index]
+    pose = tgt_data_dict["observations"]["images"][f"{camera_name}_extrinsic"][0]
+    K = tgt_data_dict["observations"]["images"][f"{camera_name}_intrinsic"][0]
     img = tgt_data_dict["observations"]["images"][f"{camera_name}_color"][0:1][0]
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     tgt_info = {

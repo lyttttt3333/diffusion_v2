@@ -491,12 +491,15 @@ class Vision:
 
     def semantic_cluster(self, ref_dict, vis):
         self.attn_group={}
+        if vis:
+            vis_pcd(np2o3d(self.pts))
         for key in ref_dict.keys():
             attn_pts = self.filter_out_attn(self.pts_feat, ref_feat=ref_dict[key], pcd = self.pts)
             # none for hang mug
             attn_pts = density_based_downsampling_numpy(attn_pts, 0.008, 6)
-            # if vis:
-            #     vis_pcd(np2o3d(attn_pts))
+            attn_pts = attn_pts[~np.all(attn_pts == 0, axis=1)]
+            if vis:
+                vis_pcd(np2o3d(attn_pts))
             if key != "background":
                 attn_pts_list, _ = self.cluster(attn_pts, None, vis=vis)
                 print(f"cluster after filtering: {len(attn_pts_list)}")
@@ -504,8 +507,6 @@ class Vision:
                 # attn_pts_list = np.concatenate(attn_pts_list,axis= -1)
                 self.attn_group[key] = attn_pts_list
                 print(key, len(attn_pts_list))
-                # for attn in attn_pts_list:
-                #     vis_pcd(np2o3d(attn))
             else:
                 self.attn_group[key] = [attn_pts]
 
@@ -518,7 +519,7 @@ class Vision:
             labels = db.labels_
         else:
             X = attention_pts
-            labels = custom_cluster(X, 0.015)
+            labels = custom_cluster(X, 0.01)
             if vis:
                 n_clusters_found = len(np.unique(labels))
                 # print(f"cluster: {n_clusters_found}")
@@ -609,7 +610,7 @@ class Vision:
         similarity = torch.max(similarity_list, dim=0)[0]
 
         # 0.8
-        attn_indices = (similarity > 0.85).tolist()
+        attn_indices = (similarity > 0.8).tolist()
         pcd = pcd[attn_indices, :]
         return pcd
 

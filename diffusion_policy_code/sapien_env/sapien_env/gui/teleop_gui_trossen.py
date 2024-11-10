@@ -58,38 +58,38 @@ TABLE_TOP_CAMERAS = {
     ),
 }
 
-# TABLE_TOP_CAMERAS = {
-#     "left_bottom": dict(
-#         position=np.array([0.08, -0.5, 0.0]),
-#         look_at_dir=np.array([0., 0.4, 0.0]),
-#         right_dir=np.array([1, -1, 0]),
-#         name="left_bottom_view",
-#     ),
-#     "right_bottom": dict(
-#         position=np.array([0.5, -0.15, 0.15]),
-#         look_at_dir=np.array([-0.5,0., 0.]),
-#         right_dir=np.array([0, 1, 0]),
-#         name="right_bottom_view",
-#     ),
-#     "left_top": dict(
-#         position=np.array([-0.4, 0.05, 0.15]),
-#         look_at_dir=np.array([0.5,0., 0.]),
-#         right_dir=np.array([0, -1, 0]),
-#         name="left_top_view",
-#     ),
-#     "right_top": dict(
-#         position=np.array([0., 0.75, 0.25]),
-#         look_at_dir=np.array([0., -0.4, 0.]),
-#         right_dir=np.array([-1, 0, 0]),
-#         name="right_top_view",
-#     ),    
-#     "direct_up": dict(
-#         position=np.array([0.0, 0.2, 0.45]),
-#         look_at_dir=np.array([-0., -0., -0.3]),
-#         right_dir=np.array([0, -1, 0]),
-#         name="direct_up_view",
-#     ),
-# }
+TABLE_TOP_CAMERAS_BATTERY = {
+    "left_bottom": dict(
+        position=np.array([0.08, -0.5, 0.0]),
+        look_at_dir=np.array([0., 0.4, 0.0]),
+        right_dir=np.array([1, -1, 0]),
+        name="left_bottom_view",
+    ),
+    "right_bottom": dict(
+        position=np.array([0.5, -0.15, 0.15]),
+        look_at_dir=np.array([-0.5,0., 0.]),
+        right_dir=np.array([0, 1, 0]),
+        name="right_bottom_view",
+    ),
+    "left_top": dict(
+        position=np.array([-0.4, 0.05, 0.15]),
+        look_at_dir=np.array([0.5,0., 0.]),
+        right_dir=np.array([0, -1, 0]),
+        name="left_top_view",
+    ),
+    "right_top": dict(
+        position=np.array([0., 0.75, 0.25]),
+        look_at_dir=np.array([0., -0.4, 0.]),
+        right_dir=np.array([-1, 0, 0]),
+        name="right_top_view",
+    ),    
+    "direct_up": dict(
+        position=np.array([0.0, 0.2, 0.45]),
+        look_at_dir=np.array([-0., -0., -0.3]),
+        right_dir=np.array([0, -1, 0]),
+        name="direct_up_view",
+    ),
+}
 
 
 

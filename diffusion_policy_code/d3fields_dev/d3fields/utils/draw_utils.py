@@ -451,8 +451,8 @@ def exclude_pts(pcds, excluded_pts,exclude_threshold=0.05):
     pcds = pcds[min_dist_to_ex_mask]
     return pcds
 
-def merge_pcd(env_pcd, pcd_to_add, env_num):
-    env_pcd =exclude_pts(env_pcd, pcd_to_add)
+def merge_pcd(env_pcd, pcd_to_add, env_num, threshold):
+    env_pcd =exclude_pts(env_pcd, pcd_to_add, threshold)
     pcd_torch = torch.from_numpy(env_pcd).to(
         device=torch.device("cuda"), dtype=torch.float32
     )  # [N, 3]

@@ -16,7 +16,7 @@ import random
 
 from sapien_env.gui.teleop_gui_trossen import (
     META_CAMERA,
-    TABLE_TOP_CAMERAS,
+    TABLE_TOP_CAMERAS_BATTERY,
     VIEWER_CAMERA,
     GUIBase,
 )
@@ -45,7 +45,6 @@ def task_to_cfg(
     task: str,
     seed: Optional[int] = None,
     manip_obj=None,
-    extra_manip_obj=None,
     task_level_multimodality: bool = False,
     stand_mode: bool = False,
     simple_mode: bool = False,
@@ -151,9 +150,6 @@ def task_to_cfg(
                 "frame_skip": 10,
                 "use_visual_obs": False,
                 "manip_obj": "cola" if manip_obj is None else manip_obj,
-                "extra_manip_obj": (
-                    "pepsi" if extra_manip_obj is None else extra_manip_obj
-                ),
                 "randomness_level": "full",
                 "task_level_multimodality": task_level_multimodality,
             }
@@ -246,7 +242,6 @@ def main_env(
     headless,
     task_name,
     manip_obj,
-    extra_manip_obj=None,
     task_level_multimodality: bool = False,
     stand_mode: bool = False,
     simple_mode: bool = False,
@@ -267,7 +262,6 @@ def main_env(
         task_name,
         seed=seed,
         manip_obj=manip_obj,
-        extra_manip_obj=extra_manip_obj,
         task_level_multimodality=task_level_multimodality,
         stand_mode=stand_mode,
         simple_mode=simple_mode,
@@ -291,8 +285,8 @@ def main_env(
 
     # Setup viewer and camera
     add_default_scene_light(env.scene, env.renderer)
-    gui = GUIBase(env.scene, env.renderer, headless=headless, resolution=(160, 120))
-    for _, params in TABLE_TOP_CAMERAS.items():
+    gui = GUIBase(env.scene, env.renderer, headless=headless, resolution=(640, 480))
+    for _, params in TABLE_TOP_CAMERAS_BATTERY.items():
         gui.create_camera(**params)
     gui.create_camera(**META_CAMERA, meta=True)
     if not gui.headless:
@@ -306,7 +300,7 @@ def main_env(
 
     current_file_path = os.path.abspath(__file__)
     current_dir = os.path.dirname(current_file_path)
-    template_path = os.path.join(current_dir, "instruction_generate", "template.json")
+    template_path = os.path.join(current_dir, "instruction_generate", "template_battery.json")
 
     init_configuration = env.get_layout()
 
@@ -376,14 +370,6 @@ def main_env(
         config_dict["observations"]["images"][f"{cam.name}_color"] = color_save_kwargs
         config_dict["observations"]["images"][f"{cam.name}_depth"] = depth_save_kwargs
 
-    # meta_color_save_kwargs = {
-    #     "chunks": (1, meta_cam.height, meta_cam.width, 3),  # (1, 480 * 2, 640 * 2, 3)
-    #     "compression": "gzip",
-    #     "compression_opts": 9,
-    #     "dtype": "uint8",
-    # }
-    # config_dict["observations"]["meta_images"]["color"] = meta_color_save_kwargs
-
     rand_img_path = os.path.join(dataset_dir, "randomness")
     if not os.path.exists(rand_img_path):
         os.makedirs(rand_img_path)
@@ -395,6 +381,9 @@ def main_env(
 
     # import time
     # time.sleep(5)
+
+    # while True:
+    #     print("hang")
     while True:
         action = np.zeros(arm_dof + 1)
         cartisen_action, next_waypoint, quit = scripted_policy.single_trajectory(
@@ -465,9 +454,6 @@ def main_env(
         #     meta_cam.get_extrinsic_matrix()
         # )
 
-    data_dict["attention_config"]=scripted_policy.attention_config
-    data_dict["env_config"]=env.get_layout()
-    print(env.get_layout())
 
 
     txt_color = bcolors.OKGREEN if reward == 1 else bcolors.FAIL
@@ -499,9 +485,9 @@ if __name__ == "__main__":
     # data_img_{wait_num_obj}x{wait_num_slot}
 
     parser = argparse.ArgumentParser(description="Scripted policy rollout")
-    parser.add_argument("--start_idx", type=int,default=0)
-    parser.add_argument("--end_idx", type=int,default=3)
-    parser.add_argument("--dataset_dir", default=f"/home/yitong/diffusion/data_train/test_battery")
+    parser.add_argument("--start_idx", type=int,default=135)
+    parser.add_argument("--end_idx", type=int,default=180)
+    parser.add_argument("--dataset_dir", default=f"/home/yitong/diffusion/data_train/battery_1")
     parser.add_argument("--task_name", default="pack_battery")
     parser.add_argument("--headless", default=False)
     parser.add_argument("--obj_name", default=None)
@@ -510,7 +496,7 @@ if __name__ == "__main__":
     parser.add_argument("--stand_mode", action="store_true")
     parser.add_argument("--simple_mode", action="store_true")
     parser.add_argument("--fix_pick", action="store_true")
-    parser.add_argument("--num_obj_done", default=7, type=int)
+    parser.add_argument("--num_obj_done", default=9, type=int)
     parser.add_argument("--num_obj_wait", default=wait_num_obj, type=int)
     parser.add_argument("--num_slot_wait", default=wait_num_slot, type=int)
     parser.add_argument("--assign_num", default=False, type=bool)
@@ -536,24 +522,24 @@ if __name__ == "__main__":
 
     
     vis_info = {
-        "mug": {
-            obj_available[0]: [obj_color[0], obj_color[1], obj_color[2]],
-            obj_available[1]: [obj_color[1], obj_color[0], obj_color[2]],
-            obj_available[2]: [obj_color[2], obj_color[0], obj_color[1]],
+        "init": {
+            obj_available[0]: [obj_color[0]],
+            obj_available[1]: [obj_color[1]],
+            obj_available[2]: [obj_color[2]],
         },
-        "branch": {
-            "0": ["right-topmost branch", "left-topmost branch"],
-            "1": ["left-topmost branch", "right-topmost branch"],
-            "2": ["middle-right branch", "middle-left branch"],
-            "3": ["right-topmost branch", "left-topmost branch"],
-            "4": ["left-topmost branch", "right-topmost branch"],
-            "5": ["middle-right branch", "middle-left branch"],
-            "6": ["right-topmost branch", "left-topmost branch"],
-            "7": ["left-topmost branch", "right-topmost branch"],
-            "8": ["middle-right branch", "middle-left branch"],
-            "9": ["right-topmost branch", "left-topmost branch"],
-            "10": ["left-topmost branch", "right-topmost branch"],
-            "11": ["middle-right branch", "middle-left branch"],
+        "tgt": {
+            "0": ["the slot in the first row and last column", "the slot in the right front corner"],
+            "1": ["the slot in the first row and third column"],
+            "2": ["the slot in the first row and second column"],
+            "3": ["the slot in the first row and first column", "the slot in the left front corner"],
+            "4": ["the slot in the second row and last column",],
+            "5": ["the slot in the second row and third column"],
+            "6": ["the slot in the second row and second column"],
+            "7": ["the slot in the second row and first column"],
+            "8": ["the slot in the third row and last column", "the slot in the right back corner"],
+            "9": ["the slot in the third row and third column"],
+            "10": ["the slot in the third row and second column"],
+            "11": ["the slot in the third row and first column", "the slot in the left back corner"],
         },
     }
 
@@ -568,6 +554,8 @@ if __name__ == "__main__":
             else:
                 free_list.append(idx)
         return sel_index, free_list
+    
+    np_random = np.random
 
     for i in tqdm(
         range(args.start_idx, args.end_idx),
@@ -578,19 +566,20 @@ if __name__ == "__main__":
         success = False
         retry = 0
 
-        np_random = np.random
+        
         np_random.seed(i)
 
-        slackness_type = random.choice(
-            ["no_slackness", "mug_slackness", "branch_slackness", "both_slackness"]
+        slackness_type = np_random.choice(
+            ["no_slackness", "init_slackness", "tgt_slackness", "both_slackness"]
         )
 
         # Set up battery arrangement
         done_index, free_list = get_done_pose_distribution(args.num_obj_done, np_random)
-        obj_done_list = np_random.choice(obj_available, args.num_obj_done)
+        done_num = np_random.choice(list(range(3, args.num_obj_done)))
+        obj_done_list = np_random.choice(obj_available, done_num)
         obj_wait_list = np_random.choice(obj_available, args.num_obj_wait)
 
-        target_idx = random.choice(free_list)
+        target_idx = np_random.choice(free_list)
         assert target_idx not in done_index
 
         overwrite = {
@@ -599,7 +588,7 @@ if __name__ == "__main__":
             "obj_wait_list" : obj_wait_list,
             "target_idx" : target_idx,
         }
-
+        print(done_index)
         
 
         if True:
@@ -609,8 +598,7 @@ if __name__ == "__main__":
                 dataset_dir=args.dataset_dir,
                 headless=args.headless,
                 task_name=args.task_name,
-                manip_obj=["battery_3", "battery_4", "battery_5"],
-                extra_manip_obj=["battery_3", "battery_4", "battery_5"],
+                manip_obj=obj_wait_list.tolist(),
                 task_level_multimodality=args.task_level_multimodality,
                 stand_mode=args.stand_mode,
                 simple_mode=args.simple_mode,

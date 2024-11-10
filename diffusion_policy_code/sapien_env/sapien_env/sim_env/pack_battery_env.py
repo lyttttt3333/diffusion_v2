@@ -52,7 +52,7 @@ class PackBatteryEnv(BaseSimulationEnv):
         assert 0 <= num_obj_wait
         assert num_obj_wait <= 8
         assert 0 <= num_obj_done
-        assert num_obj_wait + num_obj_done <= 12
+        # assert num_obj_wait + num_obj_done <= 12
         assert num_slot_wait <= 12
 
         self.task_level_multimodality = task_level_multimodality
@@ -139,6 +139,35 @@ class PackBatteryEnv(BaseSimulationEnv):
         )
         container_actor.set_pose(container_pose)
         self.container = {"actor": container_actor, "pose": container_pose}
+
+        container_position = self.container["pose"].p + np.array([0, 0, 0.005])
+        self.slot_positions = container_position + self.obj_done_offset_list
+        # self.slot_positions = self.slot_positions - np.array([0, 0, 0.012])
+
+        # 
+        for idx in range(self.slot_positions.shape[0]):
+            slot_position = self.slot_positions[idx]
+            pose = sapien.Pose(p=slot_position)
+            builder = self.scene.create_actor_builder()
+            builder.add_box_visual(
+                pose=pose,
+                half_size=0.005 * np.array([2.5,2.5, 0.5], dtype=np.float32),
+                color=np.array([255/255, 30/255, 10/255], dtype=np.float32),
+            )
+            builder.add_box_collision(
+                pose=pose,
+                half_size=0.005 * np.array([2.5, 2.5, 0.5], dtype=np.float32),
+            )
+            # builder.add_sphere_visual(
+            #     pose=pose,
+            #     radius=0.015,
+            #     color=np.array([255/255, 30/255, 10/255], dtype=np.float32),
+            # )
+            # builder.add_sphere_collision(
+            #     pose=pose,
+            #     radius=0.015,
+            # )
+            _ = builder.build_static(name=f"slot_{idx}")
 
     def reset_env(self) -> None:
         self.obj_wait = []
@@ -310,7 +339,7 @@ class PackBatteryEnv(BaseSimulationEnv):
             "init": np.array([0]),
             "init_layout": obj_layout,
             "tgt": np.array([self.target_idx]),
-            "tgt_layout": self.obj_done_offset_list,
+            "tgt_layout": self.slot_positions,
         }
 
 
