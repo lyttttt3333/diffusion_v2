@@ -3,33 +3,23 @@
 # PROMPT
 # ['battery','slot'] 
 
-battery
+battery outside the crate
 
 # RESPONSE
 battery_list = self.get_obj('battery')
-output_var = battery_list
+tgt_idx = self.find_instance_in_category(instance = 'battery outside the crate', category = 'battery')
+tgt_battery_list = []
+for idx in tgt_idx:
+    tgt_battery_list.append(battery_list[idx]) 
+output_var = tgt_battery_list
 # -------------
 # -------------
-# detection API summary
+# find_instance_in_category API summary
 # PROMPT
-# ['battery','slot'] 
-
-slot
+# The first prompt is #battery outside the crate
 
 # RESPONSE
-slot_list = self.get_obj('slot')
-output_var = slot_list
-# -------------
-# -------------
-# detection API summary
-# PROMPT
-# ['battery','slot'] 
-
-battery
-
-# RESPONSE
-battery_list = self.get_obj('battery')
-output_var = battery_list
+[0, 1]
 # -------------
 # -------------
 # detection API summary

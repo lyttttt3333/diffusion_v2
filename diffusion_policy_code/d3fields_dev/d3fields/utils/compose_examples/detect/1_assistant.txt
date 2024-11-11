@@ -1,6 +1,8 @@
 ```python
 book_list = self.get_obj('book')
 tgt_idx = self.find_instance_in_category(instance = 'thicker book', category = 'book')
-tgt_book = book_list[tgt_idx]
-output_var = [tgt_book]
+tgt_book_list = []
+for idx in tgt_idx:
+    tgt_book_list.append(book_list[idx]) 
+output_var = tgt_book_list
 ```

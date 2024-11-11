@@ -83,22 +83,17 @@ class Attention:
         #     print(response)
         #     print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
         # Determine target object, nearest battery
-        battery_list = self.detect("battery")
-        battery_centroid_list = [np.mean(pts, axis=0)[None, :] for pts in battery_list]
-        battery_centroid_numpy = np.concatenate(battery_centroid_list, axis=0)
-        battery_centroid_dist = np.linalg.norm(battery_centroid_numpy, axis=-1, ord=2)
-        tgt_battery_idx = np.argmin(battery_centroid_dist)
-        tgt_battery_pts = battery_list[tgt_battery_idx]
-
-        # Determine target object, slot
-        slot = self.detect("slot")[0]
-
-        output_var = {}
-        output_var["battery"] = tgt_battery_pts
-        output_var["slot"] = slot
+        # Determine target object, the nearest battery
+        # battery_list = self.detect("battery outside the crate")
+        # slot_list = self.detect("slot")
+        # output_var = []
+        # for idx, battery_pts in enumerate(battery_list):
+        #     attn_dict = {}
+        #     attn_dict["battery"] = battery_pts
+        #     attn_dict["slot"] = slot_list[idx]
+        #     output_var.append(attn_dict)
+        print(response)
         exec(response)
-
-
         return locals()["output_var"], response
 
     
@@ -171,7 +166,9 @@ class Attention:
             print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
             print(response)
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
+        print(response)
         exec(response)
+
         y = locals()["output_var"]
         return y
 
@@ -186,10 +183,10 @@ class Attention:
         example = """Answer based on the given image in formation of the following example. 
 
                     # green pen
-                    0
+                    [0,1]
 
-                    '# green pen' is a prompt, and '0' is your answer. 
-                    Make sure to give me a single number directly without prompt in your response.
+                    '# green pen' is a prompt, and [0,1] is your answer. 
+                    Make sure to give me a list contain some numbers directly without prompt in your response.
 
                     """
         prompt = "The first prompt is #" + instance
@@ -230,7 +227,10 @@ class Attention:
             print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
             print(response)
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
-        response = int(response)
+        # response = int(response)
+        import ast
+        response = response
+        response = list(map(int, ast.literal_eval(response)))
         print("Select from image:", response)
         return response
 

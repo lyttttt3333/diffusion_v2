@@ -1142,59 +1142,57 @@ def d3fields_proc(
 
         generated_code = None
         if (not fusion.xmem_first_mask_loaded) and use_attn:
-            url = local_image_to_data_url(color_seq[0, 3])
+
+            if (prompt_info is not None) and (fusion.attn_dict_list is None):
+                url = local_image_to_data_url(color_seq[0, 3])
 
 
-            vis = Vision(
-                fusion=fusion,
-                boundaries=None,
-                query_threshold=None,
-                N_per_inst=None,
-                dynamics_dict=dynamics_dict,
-            )
+                vis = Vision(
+                    fusion=fusion,
+                    boundaries=None,
+                    query_threshold=None,
+                    N_per_inst=None,
+                    dynamics_dict=dynamics_dict,
+                )
 
-            aggr_pcd, _ = aggr_point_cloud_from_data(
-                color_seq[0],
-                depth_seq[0],
-                intri_seq[0],
-                extri_seq[0],
-                downsample=True,
-                downsample_r=0.002,
-                boundaries=shape_meta["info"]["boundaries"],
-                out_o3d=False,
-            )
+                aggr_pcd, _ = aggr_point_cloud_from_data(
+                    color_seq[0],
+                    depth_seq[0],
+                    intri_seq[0],
+                    extri_seq[0],
+                    downsample=True,
+                    downsample_r=0.002,
+                    boundaries=shape_meta["info"]["boundaries"],
+                    out_o3d=False,
+                )
 
-            aggr_feat_list, aggr_pcd_list, _, _ = fusion.select_features_from_pcd(
-                aggr_pcd,
-                18000,
-                per_instance=True,
-                use_seg=False,
-                use_dino=use_attn,
-            )
-            aggr_pcd = aggr_pcd_list[0]
-            aggr_feat = aggr_feat_list[0]
+                aggr_feat_list, aggr_pcd_list, _, _ = fusion.select_features_from_pcd(
+                    aggr_pcd,
+                    18000,
+                    per_instance=True,
+                    use_seg=False,
+                    use_dino=use_attn,
+                )
+                aggr_pcd = aggr_pcd_list[0]
+                aggr_feat = aggr_feat_list[0]
 
-            src_dict = {
-                "img": rgb,
-                "intrinsic": intri_seq[0],
-                "extrinsic": extri_seq[0],
-            }
-            src_dict["pts"] = aggr_pcd
-            src_dict["feat"] = aggr_feat.cpu().numpy()
-
-
-            lib_root = "/home/yitong/diffusion/ref_lib"
-            lib_path = os.path.join(lib_root, "pack_battery")
-
-            ref_dict = load_ref(lib_path, ["battery", "slot"])
-
-            vis.update(src_dict)
-            vis.semantic_cluster(ref_dict, True)
-            vis.bounding_box(src_dict)
+                src_dict = {
+                    "img": rgb,
+                    "intrinsic": intri_seq[0],
+                    "extrinsic": extri_seq[0],
+                }
+                src_dict["pts"] = aggr_pcd
+                src_dict["feat"] = aggr_feat.cpu().numpy()
 
 
-            
-            if prompt_info is not None:
+                lib_root = "/home/yitong/diffusion/ref_lib"
+                lib_path = os.path.join(lib_root, "pack_battery")
+
+                ref_dict = load_ref(lib_path, ["battery", "slot"])
+
+                vis.update(src_dict)
+                vis.semantic_cluster(ref_dict, False)
+                vis.bounding_box(src_dict)     
 
                 task = prompt_info["task"]
                 obj_list = prompt_info["obj_list"]
@@ -1205,14 +1203,20 @@ def d3fields_proc(
                 attention = Attention(
                     vis=vis, feat_dict=None, obj_list=obj_list, out_path=prompt_log_path
                 )
-                attn_dict, generated_code = attention.compose(
+                attn_dict_list, generated_code = attention.compose(
                     task=task, obj_list=obj_list, instruction=prompt, url=url
                 )
+                fusion.attn_dict_list = attn_dict_list
+                fusion.vis_module = vis
+
+                
 
             else:
-                attn_dict = vis.get_attn_for_training(ground_truth_dict)
-            
+                # attn_dict = vis.get_attn_for_training(ground_truth_dict)
+                pass
 
+            vis = fusion.vis_module
+            attn_dict = fusion.attn_dict_list[fusion.current_phase]
             bbox_list, attn_list = vis.decouple_into_bbox(attn_dict)
 
             for key in vis.attn_group.keys():
@@ -1249,12 +1253,14 @@ def d3fields_proc(
 
             # select objects with attention
             attention_obj_idx = []
+            attention_obj_name = []
             query_obj_idx = []
             for idx, item in enumerate(
                 [f"inst_{i}" for i in range(len(fusion.attn_list))]
             ):
                 if fusion.attn_list[idx] == 1:
                     attention_obj_idx += obj_idx_dict[item]
+                    attention_obj_name += [item]
                 query_obj_idx += obj_idx_dict[item]
 
             obj_pcd, _ = aggr_point_cloud_from_data(
@@ -1281,7 +1287,7 @@ def d3fields_proc(
             )
             
             # movable_pcd = np.concatenate(src_pts_list, axis =0)
-            movable_pcd = src_pts_list[attention_obj_idx[0] - 1]
+            movable_pcd = src_pts_list[label.index(attention_obj_name[0])]
             if fusion.env_pcd is None:
                 env_num = max_pts_num - movable_pcd.shape[0] - ee_pcd.shape[0]
                 y = obj_pcd[:,1]
@@ -1293,6 +1299,17 @@ def d3fields_proc(
                 fusion.env_pcd = env_pcd
             else:
                 pass
+
+            current_ee_cent = np.mean(ee_pcd, axis = 0)
+            ee_z = current_ee_cent[-1]
+            print(current_ee_cent)
+            if fusion.last_ee_cent is not None:
+                delta = np.linalg.norm(current_ee_cent - fusion.last_ee_cent, ord=2)
+            else:
+                delta = 1
+            fusion.last_ee_cent = current_ee_cent
+            fusion.ee_error.append(delta) 
+
 
 
 
@@ -1377,6 +1394,24 @@ def d3fields_proc(
         aggr_src_pts_ls.append(aggr_src_pts)
         aggr_feats_ls.append(None)
         aggr_src_pts_color_ls.append(None)
+
+        def check_queue(queue, threshold):
+            return all(x is not None and np.all(x < threshold) for x in queue)
+        
+        def reset_queue(queue):
+            queue.clear()  
+            queue.extend([None] * queue.maxlen)  
+
+        
+        if check_queue(fusion.ee_error, 1e-4) and (ee_z > 0.23):
+            fusion.xmem_first_mask_loaded = False
+            fusion.env_pcd = None
+            fusion.last_ee_cent = None
+            fusion.clear_xmem_memory()
+            reset_queue(fusion.ee_error)
+            fusion.current_phase += 1
+
+
 
     return aggr_src_pts_ls, generated_code
 

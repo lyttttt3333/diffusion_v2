@@ -393,8 +393,14 @@ class Fusion:
         self.attn_list = None
         self.exclude_camera = None
         self.env_pcd = None
+        from collections import deque
+        self.last_ee_cent = None
+        self.ee_error = deque([None]*8, maxlen=8)
 
         self.grain = grain
+        self.attn_dict_list = None
+        self.current_phase = 0
+        self.vis_module = None
 
     def eval(self, pts, return_names=["dino_feats", "mask"], return_inter=False):
         # :param pts: (N, 3) torch tensor in world frame

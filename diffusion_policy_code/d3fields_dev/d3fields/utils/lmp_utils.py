@@ -277,7 +277,7 @@ class Vision:
         import matplotlib.pyplot as plt 
         bbox_list = self.bbox[key][img_idx]
         image_with_label = self.draw_bounding_boxes(self.src_dict["img"][img_idx], bbox_list)
-        if self.vis_flag:
+        if True:
             plt.figure(figsize=(8, 6))
             plt.imshow(cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB))
             plt.show()
