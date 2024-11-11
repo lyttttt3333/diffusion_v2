@@ -1189,7 +1189,7 @@ def d3fields_proc(
             ref_dict = load_ref(lib_path, ["battery", "slot"])
 
             vis.update(src_dict)
-            vis.semantic_cluster(ref_dict, 0)
+            vis.semantic_cluster(ref_dict, True)
             vis.bounding_box(src_dict)
 
 
@@ -1231,7 +1231,7 @@ def d3fields_proc(
             teleop_robot,
             qpos_seq[t],
             num_bots,
-            N_per_inst,
+            400,
         )
 
         if use_attn:
@@ -1272,7 +1272,7 @@ def d3fields_proc(
             # if fusion.static_pts.shape[0] > 0:
             #     obj_pcd = np.concatenate([obj_pcd, fusion.static_pts[:, :3]], axis=0)
 
-            src_feat_list, src_pts_list, _, _ = fusion.select_features_from_pcd(
+            src_feat_list, src_pts_list, _, label = fusion.select_features_from_pcd(
                 obj_pcd,
                 N_per_inst,
                 per_instance=True,
@@ -1280,15 +1280,16 @@ def d3fields_proc(
                 use_dino=use_attn,
             )
             
-            movable_pcd = np.concatenate(src_pts_list, axis =0)
+            # movable_pcd = np.concatenate(src_pts_list, axis =0)
+            movable_pcd = src_pts_list[attention_obj_idx[0] - 1]
             if fusion.env_pcd is None:
                 env_num = max_pts_num - movable_pcd.shape[0] - ee_pcd.shape[0]
-                # y = obj_pcd[:,1]
-                # obj_pcd = obj_pcd[y>0.06]
+                y = obj_pcd[:,1]
+                obj_pcd = obj_pcd[y>-0.1]
                 pcd_exclude = np.concatenate([movable_pcd,robot_pcd],axis=0)
                 if env_num <= 0:
                     raise
-                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num, threshold=0.01)
+                _, env_pcd = merge_pcd(env_pcd=obj_pcd, pcd_to_add=pcd_exclude, env_num=env_num, threshold=0.05)
                 fusion.env_pcd = env_pcd
             else:
                 pass

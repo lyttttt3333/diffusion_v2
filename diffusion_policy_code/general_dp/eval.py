@@ -137,7 +137,7 @@ def main(
         # ]
         cfg.task.env_runner.policy_keys = [
             "d3fields",
-            "embedding",
+            # "embedding",
         ]
         # cfg.task.env_runner.vis_3d = vis_3d
     # add sapien_env from dataset_dir
@@ -148,7 +148,7 @@ def main(
 
     current_file_path = os.path.abspath(__file__)
     current_folder_path = os.path.dirname(current_file_path)
-    test_env_path = "/home/yitong/diffusion/diffusion_policy_code/eval_env" # os.path.join(current_folder_path, "eval_env")
+    test_env_path = "/home/yitong/diffusion/data_train/eval_env_pack_battery" # os.path.join(current_folder_path, "eval_env")
 
     if test_env_path is None:
         sys.path.append(cfg.task.env_runner.dataset_dir)

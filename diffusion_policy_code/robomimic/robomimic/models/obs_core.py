@@ -18,8 +18,8 @@ sys.path.append('/home/yixuan22/general_dp/robomimic')
 
 import robomimic.models.base_nets as BaseNets
 from robomimic.models.pointnet_utils import PointNetEncoder
-from robomimic.models.pointnet2_utils import PointNet2Encoder, PointNetAttnEncoder, CAMPointNetEncoder
-# from robomimic.models.pointnet2_utils_dense_sample import PointNet2Encoder, PointNetAttnEncoder, CAMPointNetEncoder
+# from robomimic.models.pointnet2_utils import PointNet2Encoder, PointNetAttnEncoder, CAMPointNetEncoder
+from robomimic.models.pointnet2_utils_dense_sample import PointNet2Encoder, PointNetAttnEncoder, CAMPointNetEncoder
 from robomimic.models.pointnext import PointNeXt
 import robomimic.utils.tensor_utils as TensorUtils
 import robomimic.utils.obs_utils as ObsUtils

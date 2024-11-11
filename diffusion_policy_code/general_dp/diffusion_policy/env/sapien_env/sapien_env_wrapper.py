@@ -121,7 +121,7 @@ class SapienEnvWrapper:
 
         # setup sapien rendering
         self.gui = GUIBase(
-            env.scene, env.renderer, headless=True, resolution=(480, 360)
+            env.scene, env.renderer, headless=True, resolution=(640, 480)
         )
         for name, params in TABLE_TOP_CAMERAS.items():
             split_name = name.split("_")
@@ -147,7 +147,7 @@ class SapienEnvWrapper:
             arm_dof = self.env.arm_dof
             raw_obs["joint_pos"] = self.env.robot.get_qpos()[:-1]
             raw_obs["joint_vel"] = self.env.robot.get_qvel()[:-1]
-            raw_obs["embedding"] = self.env.get_text_embedding()
+            # raw_obs["embedding"] = self.env.get_text_embedding()
             ee_translation = self.env.palm_link.get_pose().p
             ee_rotation = transforms3d.euler.quat2euler(
                 self.env.palm_link.get_pose().q, axes="sxyz"
@@ -312,13 +312,18 @@ class SapienEnvWrapper:
                 self.env.set_init(self.init_states)
         self.init_crate = None
         self.first_flag = True
-        self.instruction, self.slackness = self.env.set_instruction()
-        print("instruction : ", self.env.instruction, self.slackness)
-        prompt_info = {}
-        prompt_info["task"] = "# hang a mug on a branch \n"
-        prompt_info["obj_list"] = "['mug','branch'] \n"
-        prompt_info["prompt"] = self.env.instruction + "\n"
-        self.prompt_info = prompt_info
+        if True:
+            # self.instruction, self.slackness = self.env.set_instruction()
+            # print("instruction : ", self.env.instruction, self.slackness)
+            prompt_info = {}
+            prompt_info["task"] = "# pick a battery into a slot \n"
+            prompt_info["obj_list"] = "['battery','slot'] \n"
+            # prompt_info["prompt"] = self.env.instruction + "\n"
+            prompt_info["prompt"] = "pick the nearest battery into a slot" + "\n"
+            self.instruction = "pick the nearest battery into a slot"
+            self.prompt_info = prompt_info
+        else:
+            self.prompt_info = None
         return self.get_observation()
 
     def close(self):

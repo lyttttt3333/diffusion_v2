@@ -1,22 +1,44 @@
 # -------------
 # detection API summary
 # PROMPT
-# ['mug','branch'] 
+# ['battery','slot'] 
 
-mug
+battery
 
 # RESPONSE
-mug_list = self.get_obj('mug')
-output_var = mug_list
+battery_list = self.get_obj('battery')
+output_var = battery_list
 # -------------
 # -------------
 # detection API summary
 # PROMPT
-# ['mug','branch'] 
+# ['battery','slot'] 
 
-branch
+slot
 
 # RESPONSE
-branch_list = self.get_obj('branch')
-output_var = branch_list
+slot_list = self.get_obj('slot')
+output_var = slot_list
+# -------------
+# -------------
+# detection API summary
+# PROMPT
+# ['battery','slot'] 
+
+battery
+
+# RESPONSE
+battery_list = self.get_obj('battery')
+output_var = battery_list
+# -------------
+# -------------
+# detection API summary
+# PROMPT
+# ['battery','slot'] 
+
+slot
+
+# RESPONSE
+slot_list = self.get_obj('slot')
+output_var = slot_list
 # -------------

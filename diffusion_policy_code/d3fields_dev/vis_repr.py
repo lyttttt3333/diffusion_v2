@@ -29,7 +29,7 @@ def vis_main(scene):
 
     hyper_param_dict = {
         "pack": {
-            "data_path": "/home/yitong/diffusion/data_train/battery_1/episode_0.hdf5",
+            "data_path": "/home/yitong/diffusion/data_train/battery_2/episode_0.hdf5",
             "pca_path": "/home/yitong/diffusion/d3fields_dev/d3fields/pca_model/mug.pkl",
             "prompt": ['battery', 'crate'],
         }

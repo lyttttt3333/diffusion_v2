@@ -34,7 +34,7 @@ def compute_similarity_tensor(src_feat_map, tgt_feat):
     similarity = (similarity - torch.min(similarity)) / (
         torch.max(similarity) - torch.min(similarity)
     )
-    # np.savetxt("/home/yitong/diffusion/ref_lib/pack_battery/slot_2.txt", tgt_feat.cpu().numpy())
+    # np.savetxt("/home/yitong/diffusion/ref_lib/pack_battery/battery_0.txt", tgt_feat.cpu().numpy())
     similarity[similarity<0.75]=0
 
     assert similarity.shape[0] == src_feat_map.shape[0]
@@ -55,8 +55,8 @@ def vis_corr(
     renderer,
     bbox=None,
 ):
-    # x = 340
-    # y = 320
+    x = 266
+    y = 301
     cmap = cm.get_cmap("viridis")
 
     num_tgt = len(tgt_info["color"])
@@ -72,7 +72,7 @@ def vis_corr(
     src_feat_tensor = src_info["dino_feats"][
         int(y * feats_h / img_h), int(x * feats_w / img_w)
     ]
-    # src_feat_tensor = torch.from_numpy(np.loadtxt("/home/yitong/diffusion/ref_lib/pack_battery/battery_1.txt")).to(src_feat_tensor.device).to(src_feat_tensor.dtype)
+    src_feat_tensor = torch.from_numpy(np.loadtxt("/home/yitong/diffusion/ref_lib/pack_battery/slot_0.txt")).to(src_feat_tensor.device).to(src_feat_tensor.dtype)
     tgt_feat_sims_tensor = compute_similarity_tensor(
         vertices_feats_tensor, src_feat_tensor
     )  # [N]
@@ -398,7 +398,7 @@ def main():
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/blue_can_small.png",
             # "src_path": "/home/neo/Documents/general_dp/d3fields_dev/data/red_can_small.png",
             "src_path": f"/home/yitong/diffusion/data_train/d3fields/fields/pack/color_{img_index}.png",
-            "tgt_hdf5": "/home/yitong/diffusion/data_train/battery_1/episode_0.hdf5",
+            "tgt_hdf5": "/home/yitong/diffusion/data_train/battery_2/episode_0.hdf5",
         },
         # "mug": {
         #     "src_path": "/home/ywang/d3fields_dev/data/wild/mug/0.png",

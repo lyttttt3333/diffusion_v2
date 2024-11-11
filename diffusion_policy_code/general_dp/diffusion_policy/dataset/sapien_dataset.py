@@ -98,7 +98,7 @@ def _convert_sapien_to_dp_replay(
     episodes_paths = glob.glob(os.path.join(dataset_dir, "episode_*.hdf5"))
     episodes_stem_name = [Path(path).stem for path in episodes_paths]
     episodes_idx = [int(stem_name.split("_")[-1]) for stem_name in episodes_stem_name]
-    episodes_idx = sorted(episodes_idx)[155:]
+    episodes_idx = sorted(episodes_idx)
     kin_helper = KinHelper(robot_name=robot_name)
 
     episode_ends = list()
@@ -115,8 +115,8 @@ def _convert_sapien_to_dp_replay(
     ):
         dataset_path = os.path.join(dataset_dir, f"episode_{epi_idx}.hdf5")
         feats_per_epi = list()  # save it separately to avoid OOM
-        if True:
-        # try:
+        # if True:
+        try:
             with h5py.File(dataset_path) as file:
                 # count total steps
                 episode_length = file["cartesian_action"].shape[0]
@@ -290,7 +290,7 @@ def _convert_sapien_to_dp_replay(
                         attention_config=attention_config,
                     )
 
-                    vis_pcd = True
+                    vis_pcd = False
                     if vis_pcd:
                         import open3d as o3d
                         from d3fields.utils.draw_utils import np2o3d
@@ -347,8 +347,8 @@ def _convert_sapien_to_dp_replay(
 
             if fusion is not None:
                 fusion.clear_xmem_memory()
-        # except:
-        else:
+        except:
+        # else:
             if fusion is not None:
                 fusion.clear_xmem_memory()
             print(f"Loading Error: {dataset_path}")

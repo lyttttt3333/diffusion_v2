@@ -17,6 +17,7 @@ import random
 from sapien_env.gui.teleop_gui_trossen import (
     META_CAMERA,
     TABLE_TOP_CAMERAS_BATTERY,
+    TABLE_TOP_CAMERAS,
     VIEWER_CAMERA,
     GUIBase,
 )
@@ -273,8 +274,8 @@ def main_env(
         overwrite = overwrite,
     )
 
-    # with open(os.path.join(dataset_dir, "config.yaml"), "w") as f:
-    #     OmegaConf.save(cfg, f.name)
+    with open(os.path.join(dataset_dir, "config.yaml"), "w") as f:
+        OmegaConf.save(cfg, f.name)
 
     # collect data
     env: BaseRLEnv = hydra.utils.instantiate(cfg)
@@ -286,7 +287,7 @@ def main_env(
     # Setup viewer and camera
     add_default_scene_light(env.scene, env.renderer)
     gui = GUIBase(env.scene, env.renderer, headless=headless, resolution=(640, 480))
-    for _, params in TABLE_TOP_CAMERAS_BATTERY.items():
+    for _, params in TABLE_TOP_CAMERAS.items():
         gui.create_camera(**params)
     gui.create_camera(**META_CAMERA, meta=True)
     if not gui.headless:
@@ -485,11 +486,11 @@ if __name__ == "__main__":
     # data_img_{wait_num_obj}x{wait_num_slot}
 
     parser = argparse.ArgumentParser(description="Scripted policy rollout")
-    parser.add_argument("--start_idx", type=int,default=135)
-    parser.add_argument("--end_idx", type=int,default=180)
-    parser.add_argument("--dataset_dir", default=f"/home/yitong/diffusion/data_train/battery_1")
+    parser.add_argument("--start_idx", type=int,default=0)
+    parser.add_argument("--end_idx", type=int,default=1)
+    parser.add_argument("--dataset_dir", default=f"/home/yitong/diffusion/data_train/eval_env_pack_battery")
     parser.add_argument("--task_name", default="pack_battery")
-    parser.add_argument("--headless", default=False)
+    parser.add_argument("--headless", default=True)
     parser.add_argument("--obj_name", default=None)
     parser.add_argument("--extra_obj_name", default=None)
     parser.add_argument("--task_level_multimodality", action="store_true")
@@ -609,7 +610,7 @@ if __name__ == "__main__":
                 assign_num=args.assign_num,
                 slackness_type="no_slackness",
                 vis_info=vis_info,
-                overwrite = overwrite,
+                overwrite = None,
             )
             # if not success:
             #     retry += 1
