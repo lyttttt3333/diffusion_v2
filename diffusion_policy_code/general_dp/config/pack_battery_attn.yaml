@@ -2,7 +2,7 @@ _target_: diffusion_policy.workspace.train_diffusion_unet_hybrid_workspace.Train
 is_real: false
 robot_name: panda
 data_root: /home/yitong/diffusion/diffusion_policy_code/general_dp
-trial_name: data_prepare
+trial_name: test_1
 dataset_dir: /home/yitong/diffusion/data_train/battery_2
 output_dir: ${dataset_dir}/${trial_name}
 
