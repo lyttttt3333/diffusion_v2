@@ -1189,7 +1189,7 @@ def d3fields_proc(
             ref_dict = load_ref(lib_path, ["battery", "slot"])
 
             vis.update(src_dict)
-            vis.semantic_cluster(ref_dict, True)
+            vis.semantic_cluster(ref_dict, False)
             vis.bounding_box(src_dict)
 
 

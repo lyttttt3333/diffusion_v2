@@ -313,14 +313,14 @@ class SapienEnvWrapper:
         self.init_crate = None
         self.first_flag = True
         if True:
-            # self.instruction, self.slackness = self.env.set_instruction()
-            # print("instruction : ", self.env.instruction, self.slackness)
+            self.instruction, self.slackness = self.env.set_instruction()
+            print("instruction : ", self.env.instruction, self.slackness)
             prompt_info = {}
             prompt_info["task"] = "# pick a battery into a slot \n"
             prompt_info["obj_list"] = "['battery','slot'] \n"
-            # prompt_info["prompt"] = self.env.instruction + "\n"
-            prompt_info["prompt"] = "pick the nearest battery into a slot" + "\n"
-            self.instruction = "pick the nearest battery into a slot"
+            prompt_info["prompt"] = self.env.instruction + "\n"
+            # prompt_info["prompt"] = "pick the nearest battery into a slot" + "\n"
+            # self.instruction = "pick the nearest battery into a slot"
             self.prompt_info = prompt_info
         else:
             self.prompt_info = None

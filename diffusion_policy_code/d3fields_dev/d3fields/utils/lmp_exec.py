@@ -83,19 +83,7 @@ class Attention:
         #     print(response)
         #     print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
         # Determine target object, nearest battery
-        battery_list = self.detect("battery")
-        battery_centroid_list = [np.mean(pts, axis=0)[None, :] for pts in battery_list]
-        battery_centroid_numpy = np.concatenate(battery_centroid_list, axis=0)
-        battery_centroid_dist = np.linalg.norm(battery_centroid_numpy, axis=-1, ord=2)
-        tgt_battery_idx = np.argmin(battery_centroid_dist)
-        tgt_battery_pts = battery_list[tgt_battery_idx]
-
-        # Determine target object, slot
-        slot = self.detect("slot")[0]
-
-        output_var = {}
-        output_var["battery"] = tgt_battery_pts
-        output_var["slot"] = slot
+        print(response)
         exec(response)
 
 
