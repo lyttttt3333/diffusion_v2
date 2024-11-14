@@ -124,7 +124,7 @@ class VideoRecordingWrapper(gym.Wrapper):
         image = (255.0 * np.asarray(image)).astype(np.uint8)
         o3d_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        single_view = view_list[0]
+        single_view = view_list[-1]
         single_view = cv2.pyrUp(single_view)
         record_image = np.concatenate([single_view, o3d_image], axis=1)
 

@@ -319,7 +319,7 @@ class SapienEnvWrapper:
             prompt_info["task"] = "# pick a battery into a slot \n"
             prompt_info["obj_list"] = "['battery','slot'] \n"
             # prompt_info["prompt"] = self.env.instruction + "\n"
-            prompt_info["prompt"] = "there are blue, green and purple batteries outside the crate, sort them into the slots arranging in a column with the same color batteries" + "\n"
+            prompt_info["prompt"] = "there are some batteries outside the crate, put them into slots and compose a 'T'" + "\n"
             self.instruction = prompt_info["prompt"]
             self.prompt_info = prompt_info
         else:

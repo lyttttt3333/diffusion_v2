@@ -282,7 +282,7 @@ class Vision:
             from PIL import Image
             image_with_label_rgb = cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(image_with_label_rgb)
-            # image.save("/home/yitong/diffusion/diffusion_policy_code/d3fields_dev/d3fields/utils/compose_examples/img_detect/1_fig.png")
+            # image.save("/home/yitong/diffusion/diffusion_policy_code/d3fields_dev/d3fields/utils/compose_examples/img_detect/4_fig.png")
             image.show()
 
         string = self.image_to_base64(image_with_label)

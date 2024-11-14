@@ -1,12 +1,12 @@
 ```python
 
 ball_list = self.detect("ball outside the box")
-box_list = self.detect("box")
+box_list = self.detect("boxes which can compose a 'T' ")
 output_var = []
-for idx, ball_pts in enumerate(ball_list):
+for idx, box_pts in enumerate(box_list):
     attn_dict = {}
-    attn_dict["ball"] = ball_pts
-    attn_dict["box"] = box_list[idx]
+    attn_dict["ball"] = ball_list[idx]
+    attn_dict["box"] = box_pts
     output_var.append(attn_dict)
 
 ```

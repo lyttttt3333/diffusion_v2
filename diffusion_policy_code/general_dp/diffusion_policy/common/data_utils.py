@@ -1286,8 +1286,11 @@ def d3fields_proc(
                 use_dino=use_attn,
             )
             
-            # movable_pcd = np.concatenate(src_pts_list, axis =0)
-            movable_pcd = src_pts_list[label.index(attention_obj_name[0])]
+            movable_pcd = np.concatenate(src_pts_list, axis =0)
+            try:
+                movable_pcd = src_pts_list[label.index(attention_obj_name[0])]
+            except: 
+                movable_pcd = np.array([[0,0,0]]).astype(ee_pcd.dtype)
             if fusion.env_pcd is None:
                 env_num = max_pts_num - movable_pcd.shape[0] - ee_pcd.shape[0]
                 y = obj_pcd[:,1]

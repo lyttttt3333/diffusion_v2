@@ -188,7 +188,7 @@ class Attention:
         messages = [
             {
                 "role": "system",
-                "content": "Answer under guidance of the following examples. ",
+                "content": "Answer under guidance of the following examples. make sure your response is a list",
             }
         ]
 
