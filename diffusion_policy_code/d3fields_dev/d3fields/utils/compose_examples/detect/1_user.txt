@@ -1,2 +1,2 @@
 # ['book', 'shelf']
-# the thicker book
+# the book on the leftside of the first row

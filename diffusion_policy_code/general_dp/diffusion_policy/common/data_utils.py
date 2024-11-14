@@ -924,7 +924,7 @@ def d3fields_proc_attn(
             ref_dict = load_ref(lib_path, ["mug", "branch"])
 
             vis.update(src_dict)
-            vis.semantic_cluster(ref_dict, 0)
+            vis.semantic_cluster(ref_dict, 1)
             vis.bounding_box(src_dict)
 
 

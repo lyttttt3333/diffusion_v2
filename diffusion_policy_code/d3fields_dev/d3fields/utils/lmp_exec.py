@@ -140,16 +140,7 @@ class Attention:
         )
         response = chat_completion.choices[0].message.content
         response = remove_first_and_last_line(response)
-        if self.out_path is not None:
-            with open(self.out_path, "a") as file:
-                file.write("# -------------\n")
-                file.write("# detection API summary\n")
-                file.write("# PROMPT\n")
-                file.write("# " + prompt + "\n\n")
-                file.write("# RESPONSE\n")
-                file.write(response + "\n")
-                file.write("# -------------\n")
-        else:
+        if True:
             term_size = os.get_terminal_size()
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
             print("detection API summary:")
@@ -170,56 +161,64 @@ class Attention:
         return self.vis.get_all_instance(key, frame)
 
     def find_instance_in_category(self, instance, category):
-        url = self.vis.get_label_img(category)
-        example = """Answer based on the given image in formation of the following example. 
+        for i in range(5):
+            url = self.vis.get_label_img(category, img_idx=i)
+            example = """Answer based on the given image in formation of the following example. 
 
-                    # green pen
-                    0
+                        # green pen
+                        [0,1]
+                
+                        # yellow ball
+                        [2,3,5,8]
 
-                    '# green pen' is a prompt, and '0' is your answer. 
-                    Make sure to give me a single number directly without prompt in your response.
+                        '# green pen' is a prompt, and [0,1] is your answer. 
+                        Make sure to give me a list directly without prompt in your response.
 
-                    """
-        prompt = "The first prompt is #" + instance
-        message = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": example + prompt},
-                    {"type": "image_url", "image_url": {"url": url}},
-                ],
-            }
-        ]
-        chat_completion = client.chat.completions.create(
-            messages=message,
-            model="gpt-4o",
-            temperature=0,
-            seed=0,
-        )
+                        """
+            prompt = "The first prompt is #" + instance
+            message = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": example + prompt},
+                        {"type": "image_url", "image_url": {"url": url}},
+                    ],
+                }
+            ]
+            chat_completion = client.chat.completions.create(
+                messages=message,
+                model="gpt-4o",
+                temperature=0,
+                seed=0,
+            )
 
-        response = chat_completion.choices[0].message.content
-        # print(" img reasoning results:", response)
-        if self.out_path is not None:
-            with open(self.out_path, "a") as file:
-                file.write("# -------------\n")
-                file.write("# find_instance_in_category API summary\n")
-                file.write("# PROMPT\n")
-                file.write("# " + prompt + "\n\n")
-                file.write("# RESPONSE\n")
-                file.write(response + "\n")
-                file.write("# -------------\n")
-        else:
-            term_size = os.get_terminal_size()
-            print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
-            print("find_instance_in_category API summary:")
-            print(f"{bcolors.OKBLUE}PROMPT:{bcolors.ENDC}")
-            print("#", prompt)
-            print()
-            print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
-            print(response)
-            print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
-        response = int(response)
-        print("Select from image:", response)
+            response = chat_completion.choices[0].message.content
+            # print(" img reasoning results:", response)
+            if self.out_path is not None:
+                with open(self.out_path, "a") as file:
+                    file.write("# -------------\n")
+                    file.write("# find_instance_in_category API summary\n")
+                    file.write("# PROMPT\n")
+                    file.write("# " + prompt + "\n\n")
+                    file.write("# RESPONSE\n")
+                    file.write(response + "\n")
+                    file.write("# -------------\n")
+            else:
+                term_size = os.get_terminal_size()
+                print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
+                print("find_instance_in_category API summary:")
+                print(f"{bcolors.OKBLUE}PROMPT:{bcolors.ENDC}")
+                print("#", prompt)
+                print()
+                print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
+                print(response)
+                print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
+            import ast
+            try:
+                response = list(map(int, ast.literal_eval(response)))
+            except:
+                response = [0]
+            print("Select from image:", response)
         return response
 
 

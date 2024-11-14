@@ -1,6 +1,9 @@
 ```python
 book_list = self.get_obj('book')
-tgt_idx = self.find_instance_in_category(instance = 'thicker book', category = 'book')
-tgt_book = book_list[tgt_idx]
-output_var = [tgt_book]
+tgt_idx = self.find_instance_in_category(instance = 'book on the leftside of the first row', category = 'book')
+tgt_book = []
+# don't use list comprehension
+for i in tgt_idx:
+    tgt_bag.append(book_list[i])
+output_var = tgt_book
 ```

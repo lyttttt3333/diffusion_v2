@@ -1,22 +1,80 @@
 # -------------
-# detection API summary
+# find_instance_in_category API summary
 # PROMPT
-# ['battery','slot'] 
-
-battery
+# The first prompt is #right battery outside the box
 
 # RESPONSE
-battery_list = self.get_obj('battery')
-output_var = battery_list
+[1]
 # -------------
 # -------------
-# detection API summary
+# find_instance_in_category API summary
 # PROMPT
-# ['battery','slot'] 
-
-crate
+# The first prompt is #right battery outside the box
 
 # RESPONSE
-crate_list = self.get_obj('crate')
-output_var = crate_list
+[1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #right battery outside the box
+
+# RESPONSE
+[2]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #right battery outside the box
+
+# RESPONSE
+[0, 1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #right battery outside the box
+
+# RESPONSE
+[1, 2]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #slot in the second row and second column
+
+# RESPONSE
+[1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #slot in the second row and second column
+
+# RESPONSE
+[0]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #slot in the second row and second column
+
+# RESPONSE
+[0]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #slot in the second row and second column
+
+# RESPONSE
+[1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# The first prompt is #slot in the second row and second column
+
+# RESPONSE
+[0]
 # -------------

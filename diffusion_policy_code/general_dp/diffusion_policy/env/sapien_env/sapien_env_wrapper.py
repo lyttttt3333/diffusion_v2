@@ -312,7 +312,7 @@ class SapienEnvWrapper:
                 self.env.set_init(self.init_states)
         self.init_crate = None
         self.first_flag = True
-        if True:
+        if False:
             self.instruction, self.slackness = self.env.set_instruction()
             print("instruction : ", self.env.instruction, self.slackness)
             prompt_info = {}

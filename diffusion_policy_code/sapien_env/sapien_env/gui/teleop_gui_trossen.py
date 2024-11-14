@@ -56,6 +56,12 @@ TABLE_TOP_CAMERAS = {
         right_dir=np.array([0, -1, 0]),
         name="direct_up_view",
     ),
+    # "direct_up": dict(
+    #     position=np.array([0., 0.2, 0.45]),
+    #     look_at_dir=np.array([-0., -0., -0.3]),
+    #     right_dir=np.array([0, -1, 0]),
+    #     name="direct_up_view",
+    # ),
 }
 
 TABLE_TOP_CAMERAS_BATTERY = {

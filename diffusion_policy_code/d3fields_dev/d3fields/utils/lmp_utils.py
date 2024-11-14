@@ -262,25 +262,18 @@ class Vision:
             all_instance = [tf_pts(gpt_t_world, pcd) for pcd in all_instance]
         return all_instance
 
-    # def get_obj(self, key, frame="world"):
-    #     if key not in self.attn_group:
-    #         return []
-    #     if frame == "world":
-    #         return self.attn_group[key]
-    #     else:
-    #         pcd_ls = self.attn_group[key]
-    #         gpt_t_world = np.linalg.inv(self.world_t_gpt)
-    #         pcd_ls = [tf_pts(gpt_t_world, pcd) for pcd in pcd_ls]
-    #         return pcd_ls
-
-    def get_label_img(self, key, img_idx = 0):
+    def get_label_img(self, key, img_idx = 4):
         import matplotlib.pyplot as plt 
         bbox_list = self.bbox[key][img_idx]
         image_with_label = self.draw_bounding_boxes(self.src_dict["img"][img_idx], bbox_list)
-        if self.vis_flag:
-            plt.figure(figsize=(8, 6))
-            plt.imshow(cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB))
-            plt.show()
+        if True:
+            # plt.figure(figsize=(8, 6))
+            # plt.imshow(cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB))
+            # plt.show()
+            from PIL import Image
+            image_with_label_rgb = cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB)
+            pil_image = Image.fromarray(image_with_label_rgb)
+            pil_image.show()
         string = self.image_to_base64(image_with_label)
         return string
 
@@ -337,10 +330,10 @@ class Vision:
         box_color=(255, 0, 0),
         box_thickness=2,
         marker_color=(255, 0, 0),
-        marker_radius=15,
-        font_scale=0.7,
+        marker_radius=12,
+        font_scale=0.5,
         font_color=(255, 255, 255),
-        font_thickness=2,
+        font_thickness=1,
     ):
         image = image_np.astype(np.uint8)
 
@@ -352,11 +345,11 @@ class Vision:
             cv2.rectangle(
                 image, (x_min, y_min), (x_max, y_max), box_color, box_thickness
             )
-            center = (x_min, y_min)
-            # center = (
-            #     int(x_min + (x_max - x_min) / 2),
-            #     int(y_min + (y_max - y_min) / 2),
-            # )
+            # center = (x_min, y_min)
+            center = (
+                int(x_min + (x_max - x_min) / 2),
+                int(y_min + (y_max - y_min) / 2),
+            )
 
             # 绘制圆圈
             cv2.circle(image, center, marker_radius, marker_color, -1)  # -1 填充圆圈
@@ -464,15 +457,16 @@ class Vision:
 
     def mask_to_bbox(self, mask_mat):
         bbox_list = list()
+        pad = 5
         for i in range(mask_mat.shape[0]):
             mask = mask_mat[i]
             indices = np.argwhere(mask)
             x_min, y_min = indices.min(axis=0)
             x_max, y_max = indices.max(axis=0) + 1
-            x_min = x_min - 10
-            y_min = y_min - 10
-            x_max = x_max + 10
-            y_max = y_max + 10
+            x_min = x_min - pad
+            y_min = y_min - pad
+            x_max = x_max + pad
+            y_max = y_max + pad
             bbox = np.array([y_min, x_min, y_max, x_max])
             bbox_list.append(bbox[None, :])
         return np.concatenate(bbox_list, axis=0)
@@ -549,7 +543,7 @@ class Vision:
         filter_pts_list = []
         filter_centroid_list = []
         for idx, num in enumerate(pts_num_list):
-            if num / max_pts_num < 0.05:
+            if num / max_pts_num < 0.2:
                 continue
             else:
                 filter_pts_list.append(attention_pts_list[idx])

@@ -1,2 +1,2 @@
 # ['bag', 'box']
-# a bag next to the box
+# bags next to the box

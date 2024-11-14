@@ -1,15 +1,8 @@
 ```python
 
-# Determine non-target object, red ball
-ball_list = self.detect("ball")
-red_ball = self.detect("red ball")[0]
+# Determine target object, the ball outside the box
+ball_outside_box = self.detect("ball outside the box")[0]
 
-# Determine target object, the other (non-red) ball
-non_red_ball = None
-for ball in ball_list: # Do not use list comprehensions.
-    if not np.array_equal(ball, red_ball):
-        non_red_ball = ball
-        break 
 
 # Determine target object, right-middle box
 
@@ -38,7 +31,7 @@ else:
     tgt_box_pts = None  # Handle the case where no right boxes are found
 
 output_var = {}
-output_var["ball"] = non_red_ball
+output_var["ball"] = ball_outside_box
 output_var["box"] = tgt_box_pts
 
 ```
