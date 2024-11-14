@@ -1,3 +1,0 @@
-# place a ball into a box
-# ["ball", "box"] 
-# sort all ball outside the boxs into the boxs

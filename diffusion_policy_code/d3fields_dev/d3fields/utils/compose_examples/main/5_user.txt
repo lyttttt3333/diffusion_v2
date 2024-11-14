@@ -1,3 +1,3 @@
-# place a ball into a box
-# ["ball", "box"] 
-# move the red ball to the left-topmost box.
+# place blocks into a box
+# ["block", "box"] 
+# there are a sphere block and a cube block on the table, put them in the corresponding boxes with the same shape blocks in it.

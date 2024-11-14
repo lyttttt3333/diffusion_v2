@@ -83,17 +83,10 @@ class Attention:
         #     print(response)
         #     print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
         # Determine target object, nearest battery
-        # Determine target object, the nearest battery
-        # battery_list = self.detect("battery outside the crate")
-        # slot_list = self.detect("slot")
-        # output_var = []
-        # for idx, battery_pts in enumerate(battery_list):
-        #     attn_dict = {}
-        #     attn_dict["battery"] = battery_pts
-        #     attn_dict["slot"] = slot_list[idx]
-        #     output_var.append(attn_dict)
         print(response)
         exec(response)
+
+
         return locals()["output_var"], response
 
     
@@ -147,16 +140,7 @@ class Attention:
         )
         response = chat_completion.choices[0].message.content
         response = remove_first_and_last_line(response)
-        if self.out_path is not None:
-            with open(self.out_path, "a") as file:
-                file.write("# -------------\n")
-                file.write("# detection API summary\n")
-                file.write("# PROMPT\n")
-                file.write("# " + prompt + "\n\n")
-                file.write("# RESPONSE\n")
-                file.write(response + "\n")
-                file.write("# -------------\n")
-        else:
+        if True:
             term_size = os.get_terminal_size()
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
             print("detection API summary:")
@@ -166,9 +150,7 @@ class Attention:
             print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
             print(response)
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
-        print(response)
         exec(response)
-
         y = locals()["output_var"]
         return y
 
@@ -177,30 +159,74 @@ class Attention:
 
     def get_all_instance(self, key, frame="gpt"):
         return self.vis.get_all_instance(key, frame)
+    
+    def image_to_base64(self, image_path, image_format="png"):
+        from PIL import Image
+        import base64
+        import cv2
+        with Image.open(image_path) as img:
+            rgb_image = img.convert('RGB') 
+            image_np = np.array(rgb_image)
+            image_np_bgr = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+            # image = Image.fromarray(image_np)
+            # image.show()
 
+        success, encoded_image = cv2.imencode(f".{image_format}", image_np)
+        if not success:
+            raise ValueError("Image encoding failed.")
+
+        byte_data = encoded_image.tobytes()
+
+        base64_encoded_data = base64.b64encode(byte_data).decode("utf-8")
+
+        base64_string = f"data:image/{image_format};base64,{base64_encoded_data}"
+        return base64_string
+    
     def find_instance_in_category(self, instance, category):
+        curr_dir = os.path.dirname(os.path.abspath(__file__))
+        example_dir = os.path.join(curr_dir, "compose_examples", "img_detect")
+        messages = [
+            {
+                "role": "system",
+                "content": "Answer under guidance of the following examples. ",
+            }
+        ]
+
+        example_num = len(os.listdir(example_dir)) // 3
+        for i in range(example_num):
+            url = self.image_to_base64(f"{example_dir}/{i}_fig.png")
+            user_text = text_from_path(f"{example_dir}/{i}_user.txt")
+            assistant_text = text_from_path(f"{example_dir}/{i}_assistant.txt")
+            messages.append(
+                {
+                    "role": "user",
+                    "content": [
+                    {"type": "text", "text": user_text},
+                    {"type": "image_url", "image_url": {"url": url}}],
+                }
+            )
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": assistant_text,
+                },
+            )
+
+
+
         url = self.vis.get_label_img(category)
-        example = """Answer based on the given image in formation of the following example. 
-
-                    # green pen
-                    [0,1]
-
-                    '# green pen' is a prompt, and [0,1] is your answer. 
-                    Make sure to give me a list contain some numbers directly without prompt in your response.
-
-                    """
-        prompt = "The first prompt is #" + instance
-        message = [
+        prompt = instance
+        messages.append(
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": example + prompt},
+                    {"type": "text", "text": prompt},
                     {"type": "image_url", "image_url": {"url": url}},
                 ],
             }
-        ]
+        )
         chat_completion = client.chat.completions.create(
-            messages=message,
+            messages=messages,
             model="gpt-4o",
             temperature=0,
             seed=0,
@@ -227,10 +253,11 @@ class Attention:
             print(f"{bcolors.OKGREEN}RESPONSE:{bcolors.ENDC}")
             print(response)
             print(f"{bcolors.OKCYAN}-{bcolors.ENDC}" * term_size.columns)
-        # response = int(response)
         import ast
-        response = response
-        response = list(map(int, ast.literal_eval(response)))
+        try:
+            response = list(map(int, ast.literal_eval(response)))
+        except:
+            response = [0]
         print("Select from image:", response)
         return response
 

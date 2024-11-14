@@ -1,15 +1,48 @@
 # -------------
-# detection API summary
+# find_instance_in_category API summary
 # PROMPT
-# ['battery','slot'] 
-
-battery outside the crate
+# blue battery
 
 # RESPONSE
-battery_list = self.get_obj('battery')
-tgt_idx = self.find_instance_in_category(instance = 'battery outside the crate', category = 'battery')
-tgt_battery_list = []
-for idx in tgt_idx:
-    tgt_battery_list.append(battery_list[idx]) 
-output_var = tgt_battery_list
+[2]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# green battery
+
+# RESPONSE
+[0]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# purple battery
+
+# RESPONSE
+[1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# slot for blue battery
+
+# RESPONSE
+[0]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# slot for green battery
+
+# RESPONSE
+[1]
+# -------------
+# -------------
+# find_instance_in_category API summary
+# PROMPT
+# slot for purple battery
+
+# RESPONSE
+[2]
 # -------------

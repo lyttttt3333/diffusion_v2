@@ -273,15 +273,20 @@ class Vision:
     #         pcd_ls = [tf_pts(gpt_t_world, pcd) for pcd in pcd_ls]
     #         return pcd_ls
 
-    def get_label_img(self, key, img_idx = 0):
-        import matplotlib.pyplot as plt 
+    def get_label_img(self, key, img_idx = 4):
+        from PIL import Image
+        # import matplotlib.pyplot as plt 
         bbox_list = self.bbox[key][img_idx]
         image_with_label = self.draw_bounding_boxes(self.src_dict["img"][img_idx], bbox_list)
         if True:
-            plt.figure(figsize=(8, 6))
-            plt.imshow(cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB))
-            plt.show()
+            from PIL import Image
+            image_with_label_rgb = cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB)
+            image = Image.fromarray(image_with_label_rgb)
+            # image.save("/home/yitong/diffusion/diffusion_policy_code/d3fields_dev/d3fields/utils/compose_examples/img_detect/1_fig.png")
+            image.show()
+
         string = self.image_to_base64(image_with_label)
+
         return string
 
     def image_to_base64(self, image, image_format="png"):
@@ -353,10 +358,10 @@ class Vision:
                 image, (x_min, y_min), (x_max, y_max), box_color, box_thickness
             )
             center = (x_min, y_min)
-            # center = (
-            #     int(x_min + (x_max - x_min) / 2),
-            #     int(y_min + (y_max - y_min) / 2),
-            # )
+            center = (
+                int(x_min + (x_max - x_min) / 2),
+                int(y_min + (y_max - y_min) / 2),
+            )
 
             # 绘制圆圈
             cv2.circle(image, center, marker_radius, marker_color, -1)  # -1 填充圆圈
@@ -549,7 +554,7 @@ class Vision:
         filter_pts_list = []
         filter_centroid_list = []
         for idx, num in enumerate(pts_num_list):
-            if num / max_pts_num < 0.05:
+            if num / max_pts_num < 0.2:
                 continue
             else:
                 filter_pts_list.append(attention_pts_list[idx])
