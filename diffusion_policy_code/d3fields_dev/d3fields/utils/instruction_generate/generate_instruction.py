@@ -19,8 +19,18 @@ class instruction_generater:
 
     def fill_in_template(self, element):
         template = self.random.sample(self.templates, k=1)[0]
+        if self.has_placeholder(template, "other_init"):
+            ref = element["init"]
+        else:
+            ref = "it"
+        for key in element.keys():
+            element[key] = element[key].format(ref = ref)
         instruction = template.format(**element)
         return instruction
+        
+    def has_placeholder(self, template: str, placeholder: str) -> bool:
+        formatted_placeholder = f"{{{placeholder}}}"
+        return formatted_placeholder in template
 
     def get_absolute_position_pair(self, layout, tgt_mug_idx):
         element_list = []

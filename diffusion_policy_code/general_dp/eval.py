@@ -36,7 +36,7 @@ from utils.my_utils import NpEncoder, bcolors
 @click.option("--n_test_vis", default=-1, type=int)
 @click.option("--n_train_vis", default=-1, type=int)
 @click.option("--train_start_idx", default=-1, type=int)
-@click.option("--test_start_idx", default=50, type=int)
+@click.option("--test_start_idx", default=100, type=int)
 @click.option("--dataset_dir", default=None, type=str)
 @click.option("--repetitive", default=False, type=bool)
 # @click.option("--vis_3d", default=False, type=bool)

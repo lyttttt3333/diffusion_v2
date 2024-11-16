@@ -137,7 +137,7 @@ task:
   dataset:
     _target_: diffusion_policy.dataset.sapien_dataset.SapienDataset
     dataset_dir: ${dataset_dir}
-    vis_input: false
+    vis_input: true
     device: cuda:0
     horizon: 16
     pad_after: 7

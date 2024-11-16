@@ -1,23 +1,23 @@
 {
     "no_slackness": [
-        "Pick {init} outside the crate into {tgt}.",
-        "I need to use {other_init}. Put away {init} outside the box in {tgt}.",
-        "The desk is too messy. Put away {init} outside the box into {tgt}.",
-        "I want to put {init} outside the crate into {other_tgt}, oh sorry, {tgt}.",
-        "You should make the table more tidy, Just start from putting {init} outside the crate into {tgt}."
+        "Pick the {init} outside the crate into the {tgt}.",
+        "I need to use the {other_init}. Put away the {init} outside the box in the {tgt}.",
+        "The desk is too messy. Put away the {init} outside the box into the {tgt}.",
+        "I want to put the {init} outside the crate into the {other_tgt}, oh sorry, the {tgt}.",
+        "You should make the table more tidy, Just start from putting the {init} outside the crate into the {tgt}."
     ],
     "init_slackness": [
-        "Pick a battery outside the crate into {tgt}.",
-        "The desk is too messy. Put away a battery outside the crate into {tgt}.",
-        "I want to put a battery outside the crate into {other_tgt}, oh sorry, {tgt}.",
-        "I want to put a battery outside the crate into {tgt}."
+        "Pick a battery outside the crate into the {tgt}.",
+        "The desk is too messy. Put away a battery outside the crate into the {tgt}.",
+        "I want to put a battery outside the crate into the {other_tgt}, oh sorry, the {tgt}.",
+        "I want to put a battery outside the crate into the {tgt}."
     ],
     "tgt_slackness": [
-        "Pick {init} outside the crate into a slot.",
-        "I need to use {other_init}. Put away {init} outside the crate in a random slot.",
-        "The desk is too messy. Put away {init} outside the crate into an avaliable slot.",
-        "I want to put {other_init} into a slot, oh sorry, {init} outside the crate.",
-        "You should make the table more tidy, Just start from putting {init} outside the crate into a slot."
+        "Pick the {init} outside the crate into a slot.",
+        "I need to use the {other_init}. Put away the {init} outside the crate in a slot.",
+        "The desk is too messy. Put away the {init} outside the crate into an avaliable slot.",
+        "I want to put the {other_init} into a slot, oh sorry, the {init} outside the crate.",
+        "You should make the table more tidy, Just start from putting the {init} outside the crate into a slot."
     ],
     "both_slackness": [
         "Put a battery outside the crate on a slot.",

@@ -529,7 +529,7 @@ class PointNet2Encoder(nn.Module):
 
         # pn2.1_r_0.04
         self.sa1 = PointNetSetAbstractionAttn(npoint=(512,256), radius=0.02, nsample=32, in_channel=in_channels, mlp=[64, 64, 128], group_all=False)
-        self.sa2 = PointNetSetAbstractionAttn(npoint=(125,64), radius=0.045, nsample=64, in_channel=128 + 3 + 1, mlp=[128, 128, 256], group_all=False)
+        self.sa2 = PointNetSetAbstractionAttn(npoint=(256,64), radius=0.045, nsample=64, in_channel=128 + 3 + 1, mlp=[128, 128, 256], group_all=False)
         self.sa3 = PointNetSetAbstraction(npoint=None, radius=None, nsample=None, in_channel=256 + 3 + 1, mlp=[256, 512, 1024], group_all=True)
 
         self.fc1 = nn.Linear(1024, 512)

@@ -10,7 +10,7 @@ obs:
   d3fields:
     shape:
       - 4 # C
-      - 2000 # N
+      - 3000 # N
     type: spatial
     info:
       feats_type: no_feats # no_feats, full, pca # no_feats, full, pca
@@ -138,7 +138,7 @@ task:
   dataset:
     _target_: diffusion_policy.dataset.sapien_dataset.SapienDataset
     dataset_dir: ${dataset_dir}
-    vis_input: false
+    vis_input: true
     device: cuda:0
     horizon: 16
     pad_after: 7
