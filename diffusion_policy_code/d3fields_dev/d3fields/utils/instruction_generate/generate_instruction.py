@@ -24,7 +24,8 @@ class instruction_generater:
         else:
             ref = "it"
         for key in element.keys():
-            element[key] = element[key].format(ref = ref)
+            if element[key] is not None:
+                element[key] = element[key].format(ref = ref)
         instruction = template.format(**element)
         return instruction
         

@@ -161,7 +161,8 @@ class Attention:
         return self.vis.get_all_instance(key, frame)
 
     def find_instance_in_category(self, instance, category):
-        for i in range(5):
+        result_list = []
+        for i in [0,1]:
             url = self.vis.get_label_img(category, img_idx=i)
             example = """Answer based on the given image in formation of the following example. 
 
@@ -218,8 +219,10 @@ class Attention:
                 response = list(map(int, ast.literal_eval(response)))
             except:
                 response = [0]
-            print("Select from image:", response)
-        return response
+            result_list += response
+        result_list = list(set(result_list))
+        print("Select from image:", result_list)
+        return result_list
 
 
 """

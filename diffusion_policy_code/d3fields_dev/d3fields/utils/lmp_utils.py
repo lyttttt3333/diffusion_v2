@@ -266,7 +266,7 @@ class Vision:
         import matplotlib.pyplot as plt 
         bbox_list = self.bbox[key][img_idx]
         image_with_label = self.draw_bounding_boxes(self.src_dict["img"][img_idx], bbox_list)
-        if True:
+        if False:
             # plt.figure(figsize=(8, 6))
             # plt.imshow(cv2.cvtColor(image_with_label, cv2.COLOR_BGR2RGB))
             # plt.show()
@@ -345,10 +345,10 @@ class Vision:
             cv2.rectangle(
                 image, (x_min, y_min), (x_max, y_max), box_color, box_thickness
             )
-            # center = (x_min, y_min)
+            center = (x_min, y_min)
             center = (
-                int(x_min + (x_max - x_min) / 2),
-                int(y_min + (y_max - y_min) / 2),
+                int(x_min * 4/5 + x_max * 1/5),
+                int(y_min * 4/5 + y_max * 1/5),
             )
 
             # 绘制圆圈
@@ -457,7 +457,7 @@ class Vision:
 
     def mask_to_bbox(self, mask_mat):
         bbox_list = list()
-        pad = 5
+        pad = 2
         for i in range(mask_mat.shape[0]):
             mask = mask_mat[i]
             indices = np.argwhere(mask)

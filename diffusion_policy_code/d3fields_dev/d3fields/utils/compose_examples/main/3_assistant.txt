@@ -1,11 +1,13 @@
 ```python
 
-# determine target object, my bag on the left
+# determine target object, my bag on the back
 bag_list = self.detect("bag")
 bag_centroid_list = [np.mean(pts,axis=0)[None, :] for pts in bag_list]
 bag_centroid_numpy = np.concatenate(bag_centroid_list, axis=0)
-bag_x = bag_centroid_numpy[:,0]
-tgt_bag_idx = np.argmin(bag_x)
+
+# the min y value indicates it is on the back
+bag_y = bag_centroid_numpy[:,1]
+tgt_bag_idx = np.argmin(bag_y)
 tgt_bag_pts = bag_list[tgt_bag_idx]
 
 # determine target object, top container

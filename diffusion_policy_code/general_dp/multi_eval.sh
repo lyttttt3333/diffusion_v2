@@ -1,5 +1,7 @@
 
-python eval.py --checkpoint /home/yitong/diffusion/ckpt/epoch=540.ckpt -o data_eval/eval_result/pcd_180_540
+python eval.py --checkpoint /home/yitong/diffusion/data_train/battery_2/test_0/checkpoints/epoch=360.ckpt -o data_eval/eval_result/sparse_360
+# python eval.py --checkpoint /home/yitong/diffusion/ckpt/dense/epoch=420.ckpt -o data_eval/eval_result/dense_420
+# python eval.py --checkpoint /home/yitong/diffusion/ckpt/dense/epoch=480.ckpt -o data_eval/eval_result/dense_480
 # python eval.py --checkpoint /home/yitong/diffusion/ckpt/pcd_180_120.ckpt -o data_eval/eval_result/pcd_180_120
 # python eval.py --checkpoint /home/yitong/diffusion/ckpt/pcd_120_360.ckpt -o data_eval/eval_result/pcd_120_360
 # python eval.py --checkpoint /home/yitong/diffusion/ckpt/pcd_120_420.ckpt -o data_eval/eval_result/pcd_420_360

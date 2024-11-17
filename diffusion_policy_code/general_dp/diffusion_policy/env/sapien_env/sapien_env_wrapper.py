@@ -217,7 +217,7 @@ class SapienEnvWrapper:
                 if (self.prompt_info is not None) and (generated_code is not None):
                     self.log_code_reasoning(root_path = os.path.join(self.output_dir, "instructions_log"),
                                             save_idx = self.seed_idx, 
-                                            instruction = self.instruction,
+                                            instruction = self.env.instruction,
                                             code = generated_code,
                                             )
 
@@ -312,16 +312,13 @@ class SapienEnvWrapper:
                 self.env.set_init(self.init_states)
         self.init_crate = None
         self.first_flag = True
-        if False:
-            self.instruction, self.slackness = self.env.set_instruction()
-            print("instruction : ", self.env.instruction, self.slackness)
+        if True:
             prompt_info = {}
             prompt_info["task"] = "# pick a battery into a slot \n"
             prompt_info["obj_list"] = "['battery','slot'] \n"
             prompt_info["prompt"] = self.env.instruction + "\n"
-            # prompt_info["prompt"] = "pick the nearest battery into a slot" + "\n"
-            # self.instruction = "pick the nearest battery into a slot"
             self.prompt_info = prompt_info
+            self.prompt_info = None
         else:
             self.prompt_info = None
         return self.get_observation()

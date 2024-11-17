@@ -1,37 +1,34 @@
 ```python
 
 # Determine target object, the ball outside the box
-ball_outside_box = self.detect("ball outside the box")[0]
+ball_outside_box = self.detect("blue ball outside the box")[0]
 
-
-# Determine target object, right-middle box
+# Determine target object, the box on the middle row
 
 # Detect boxes
 box_list = self.detect("box")
 box_centroid_list = [np.mean(pts, axis=0)[None, :] for pts in box_list]
 box_centroid_numpy = np.concatenate(box_centroid_list, axis=0)
 
-# Extract x and z coordinates
-box_x = box_centroid_numpy[:, 0] # determine right or left
-box_z = box_centroid_numpy[:, 2] # determine height
+# Extract y coordinate
+box_y = box_centroid_numpy[:, 1] # use y to determine front or back
 
-# Find boxes that are on the right (x > 0)
-right_box_indices = np.where(box_x > 0)[0]
-right_box_z = box_z[right_box_indices]
+# the box with the max y value and the min y value
+box_max_y = np.max(box_y)
+box_min_y = np.min(box_y)
 
-# Find the index of the box with the middle z-coordinate among the right boxes
-if right_box_z.size > 0:
-    median_z = np.median(right_box_z)
-    
-    # Find the index of the box whose z-coordinate is closest to the median
-    closest_idx = np.argmin(np.abs(right_box_z - median_z))
-    tgt_box_idx = right_box_indices[closest_idx]
-    tgt_box_pts = box_list[tgt_box_idx]
-else:
-    tgt_box_pts = None  # Handle the case where no right boxes are found
+# Determine the y coordinate range for the middle row
+middle_y_threshold = (box_max_y + box_min_y) / 2
 
+# Find the index of the box closest to the middle_y_threshold
+tgt_box_idx = np.argmin(np.abs(box_y - middle_y_threshold))
+
+# Extract the points of the target box
+tgt_box_pts = box_list[tgt_box_idx]
+
+# Store results
 output_var = {}
-output_var["ball"] = ball_outside_box
+output_var["ball"] = ball_outside_box  # Replace red_ball with ball_outside_box
 output_var["box"] = tgt_box_pts
 
 ```
