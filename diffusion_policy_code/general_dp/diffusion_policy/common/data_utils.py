@@ -767,7 +767,7 @@ def color_pts(full_pts):
         return full_pts
     dist = torch.cdist(tensor_none_attn, tensor_attn)
     min_dist = torch.min(dist, dim=-1)[0]
-    attn_flag = min_dist < 0.016
+    attn_flag = min_dist < 0.01#6
     attn_flag = attn_flag.cpu().numpy()
     full_pts[:, -1][full_pts[:, -1] == 0] = attn_flag
     return full_pts
@@ -1105,6 +1105,8 @@ def d3fields_proc(
     use_attn = shape_meta["info"]["use_attn"]
     N_per_inst = shape_meta["info"]["N_per_inst"]
     max_pts_num = shape_meta["shape"][1]
+    max_pts_num = 3600
+    N_per_inst = 400
     reference_frame = shape_meta["info"]["reference_frame"]
 
     num_bots = 1
