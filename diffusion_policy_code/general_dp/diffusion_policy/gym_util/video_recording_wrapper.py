@@ -126,7 +126,12 @@ class VideoRecordingWrapper(gym.Wrapper):
 
         single_view = view_list[-1]
         single_view = cv2.pyrUp(single_view)
-        record_image = np.concatenate([single_view, o3d_image], axis=1)
+        single_view_1 = view_list[0]
+        single_view_1 = cv2.pyrUp(single_view_1)
+        single_view_2 = view_list[3]
+        single_view_2 = cv2.pyrUp(single_view_2)
+        # record_image = np.concatenate([single_view_1, o3d_image], axis=1)
+        record_image = np.concatenate([single_view_1, single_view_2], axis=1)
 
         if self.real_time_vis:
             cv2.imshow("Sapien", all_view)

@@ -1,12 +1,35 @@
 ```python
 
+def sort_point_clouds_in_order(point_clouds):
+
+    centers = np.array([np.mean(pc, axis=0) for pc in point_clouds])
+    y_sorted_indices = np.argsort(centers[:, 1])
+    centers = centers[y_sorted_indices]
+    point_clouds = [point_clouds[i] for i in y_sorted_indices]
+
+    rows = [point_clouds[i:i+4] for i in range(0, len(point_clouds), 4)]
+    centers_rows = [centers[i:i+4] for i in range(0, len(centers), 4)]
+
+    sorted_point_clouds = []
+    sorted_centers = []
+    for row, row_centers in zip(rows, centers_rows):
+        x_sorted_indices = np.argsort(row_centers[:, 0])
+        sorted_row = [row[i] for i in x_sorted_indices]
+        sorted_row_centers = row_centers[x_sorted_indices]
+        sorted_point_clouds.extend(sorted_row)
+        sorted_centers.extend(sorted_row_centers)
+
+    return sorted_point_clouds, np.array(sorted_centers)
+
 ball_list = self.detect("ball outside the box")
-box_list = self.detect("boxes which can compose a 'T' ")
+box_list = self.detect("box")
+box_list, box_centers = sort_point_clouds_in_order(box_list)
+L_shape_index = [0, 4, 8, 1, 2, 3]
 output_var = []
-for idx, box_pts in enumerate(box_list):
+for idx, ball_pts in enumerate(ball_list):
     attn_dict = {}
-    attn_dict["ball"] = ball_list[idx]
-    attn_dict["box"] = box_pts
+    attn_dict["ball"] = ball_pts
+    attn_dict["box"] = box_list[L_shape_index[idx]]
     output_var.append(attn_dict)
 
 ```

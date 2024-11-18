@@ -2,8 +2,8 @@ _target_: diffusion_policy.workspace.train_diffusion_unet_hybrid_workspace.Train
 is_real: false
 robot_name: panda
 data_root: /home/yitong/diffusion/diffusion_policy_code/general_dp
-trial_name: test_1
-dataset_dir: /home/yitong/diffusion/data_train/battery_2
+trial_name: try
+dataset_dir: /home/yitong/diffusion/data_train/pack_battery
 output_dir: ${dataset_dir}/${trial_name}
 
 obs:
@@ -138,7 +138,7 @@ task:
   dataset:
     _target_: diffusion_policy.dataset.sapien_dataset.SapienDataset
     dataset_dir: ${dataset_dir}
-    vis_input: false
+    vis_input: true
     device: cuda:0
     horizon: 16
     pad_after: 7

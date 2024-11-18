@@ -401,6 +401,7 @@ class Fusion:
         self.attn_dict_list = None
         self.current_phase = 0
         self.vis_module = None
+        self.has_exec = False
 
     def eval(self, pts, return_names=["dino_feats", "mask"], return_inter=False):
         # :param pts: (N, 3) torch tensor in world frame

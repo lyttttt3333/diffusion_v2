@@ -1216,7 +1216,10 @@ def d3fields_proc(
                 pass
 
             vis = fusion.vis_module
-            attn_dict = fusion.attn_dict_list[fusion.current_phase]
+            try:
+                attn_dict = fusion.attn_dict_list[fusion.current_phase]
+            except:
+                attn_dict = fusion.attn_dict_list[-1]
             bbox_list, attn_list = vis.decouple_into_bbox(attn_dict)
 
             for key in vis.attn_group.keys():
@@ -1286,8 +1289,8 @@ def d3fields_proc(
                 use_dino=use_attn,
             )
             
-            movable_pcd = np.concatenate(src_pts_list, axis =0)
             try:
+                movable_pcd = np.concatenate(src_pts_list, axis =0)
                 movable_pcd = src_pts_list[label.index(attention_obj_name[0])]
             except: 
                 movable_pcd = np.array([[0,0,0]]).astype(ee_pcd.dtype)
@@ -1305,6 +1308,8 @@ def d3fields_proc(
 
             current_ee_cent = np.mean(ee_pcd, axis = 0)
             ee_z = current_ee_cent[-1]
+            ee_y = current_ee_cent[1]
+            ee_x = current_ee_cent[0]
             print(current_ee_cent)
             if fusion.last_ee_cent is not None:
                 delta = np.linalg.norm(current_ee_cent - fusion.last_ee_cent, ord=2)
@@ -1406,13 +1411,17 @@ def d3fields_proc(
             queue.extend([None] * queue.maxlen)  
 
         
-        if check_queue(fusion.ee_error, 1e-4) and (ee_z > 0.23):
+        if check_queue(fusion.ee_error, 2e-3) and (ee_z > 0.249) and (ee_y < -0.00) and (fusion.current_phase + 1 < len(fusion.attn_dict_list)) and fusion.has_exec:
             fusion.xmem_first_mask_loaded = False
             fusion.env_pcd = None
             fusion.last_ee_cent = None
             fusion.clear_xmem_memory()
             reset_queue(fusion.ee_error)
             fusion.current_phase += 1
+            fusion.has_exec = False
+
+        if (ee_z < 0.15):
+            fusion.has_exec = True
 
 
 
