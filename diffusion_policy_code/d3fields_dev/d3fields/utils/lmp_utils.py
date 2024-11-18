@@ -243,36 +243,6 @@ class Vision:
         self.pts_feat = src_dict["feat"]
         self.cam_num = 5
 
-    def get_one_instance(self, idx, frame="world"):
-        pcd = self.masked_pcd[idx]
-        if frame != "world":
-            gpt_t_world = np.linalg.inv(self.world_t_gpt)
-            pcd = tf_pts(gpt_t_world, pcd)
-        return pcd
-
-    def get_all_instance(self, key, frame="world"):
-        if key not in self.label:
-            return []
-        all_instance = []
-        for i in range(self.num_inst):
-            if key == self.label[i]:
-                all_instance.append(self.masked_pcd[i])
-        if frame != "world":
-            gpt_t_world = np.linalg.inv(self.world_t_gpt)
-            all_instance = [tf_pts(gpt_t_world, pcd) for pcd in all_instance]
-        return all_instance
-
-    # def get_obj(self, key, frame="world"):
-    #     if key not in self.attn_group:
-    #         return []
-    #     if frame == "world":
-    #         return self.attn_group[key]
-    #     else:
-    #         pcd_ls = self.attn_group[key]
-    #         gpt_t_world = np.linalg.inv(self.world_t_gpt)
-    #         pcd_ls = [tf_pts(gpt_t_world, pcd) for pcd in pcd_ls]
-    #         return pcd_ls
-
     def get_label_img(self, key, img_idx = 4):
         from PIL import Image
         # import matplotlib.pyplot as plt 
@@ -342,26 +312,25 @@ class Vision:
         box_color=(255, 0, 0),
         box_thickness=2,
         marker_color=(255, 0, 0),
-        marker_radius=15,
-        font_scale=0.7,
+        marker_radius=10,
+        font_scale=0.5,
         font_color=(255, 255, 255),
-        font_thickness=2,
+        font_thickness=1,
     ):
         image = image_np.astype(np.uint8)
 
         for idx, box in enumerate(bounding_boxes):
             if len(box) != 4:
-                print(f"无效的边界框: {box}, 跳过.")
                 continue
             x_min, y_min, x_max, y_max = map(int, box)
             cv2.rectangle(
                 image, (x_min, y_min), (x_max, y_max), box_color, box_thickness
             )
             center = (x_min, y_min)
-            center = (
-                int(x_min + (x_max - x_min) / 2),
-                int(y_min + (y_max - y_min) / 2),
-            )
+            # center = (
+            #     int(x_min + (x_max - x_min) / 2),
+            #     int(y_min + (y_max - y_min) / 2),
+            # )
 
             # 绘制圆圈
             cv2.circle(image, center, marker_radius, marker_color, -1)  # -1 填充圆圈
@@ -469,15 +438,16 @@ class Vision:
 
     def mask_to_bbox(self, mask_mat):
         bbox_list = list()
+        pad = 3
         for i in range(mask_mat.shape[0]):
             mask = mask_mat[i]
             indices = np.argwhere(mask)
             x_min, y_min = indices.min(axis=0)
             x_max, y_max = indices.max(axis=0) + 1
-            x_min = x_min - 10
-            y_min = y_min - 10
-            x_max = x_max + 10
-            y_max = y_max + 10
+            x_min = x_min - pad
+            y_min = y_min - pad
+            x_max = x_max + pad
+            y_max = y_max + pad
             bbox = np.array([y_min, x_min, y_max, x_max])
             bbox_list.append(bbox[None, :])
         return np.concatenate(bbox_list, axis=0)

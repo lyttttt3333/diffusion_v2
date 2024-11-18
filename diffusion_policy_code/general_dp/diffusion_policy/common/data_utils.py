@@ -767,7 +767,7 @@ def color_pts(full_pts):
         return full_pts
     dist = torch.cdist(tensor_none_attn, tensor_attn)
     min_dist = torch.min(dist, dim=-1)[0]
-    attn_flag = min_dist < 0.01#6
+    attn_flag = min_dist < 0.016
     attn_flag = attn_flag.cpu().numpy()
     full_pts[:, -1][full_pts[:, -1] == 0] = attn_flag
     return full_pts
@@ -1105,8 +1105,6 @@ def d3fields_proc(
     use_attn = shape_meta["info"]["use_attn"]
     N_per_inst = shape_meta["info"]["N_per_inst"]
     max_pts_num = shape_meta["shape"][1]
-    max_pts_num = 3600
-    N_per_inst = 400
     reference_frame = shape_meta["info"]["reference_frame"]
 
     num_bots = 1
@@ -1413,7 +1411,7 @@ def d3fields_proc(
             queue.extend([None] * queue.maxlen)  
 
         
-        if check_queue(fusion.ee_error, 2e-3) and (ee_z > 0.249) and (ee_y < -0.00) and (fusion.current_phase + 1 < len(fusion.attn_dict_list)) and fusion.has_exec:
+        if check_queue(fusion.ee_error, 2e-3) and (ee_z > 0.249) and (fusion.current_phase + 1 < len(fusion.attn_dict_list)) and fusion.has_exec:
             fusion.xmem_first_mask_loaded = False
             fusion.env_pcd = None
             fusion.last_ee_cent = None

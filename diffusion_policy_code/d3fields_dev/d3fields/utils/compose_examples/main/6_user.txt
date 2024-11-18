@@ -1,3 +1,3 @@
-# place a ball into a box
-# ["ball", "box"] 
-# This a crate with 3x4 slots. sort all ball outside the boxs into the boxs and form a "L"
+# place blocks into a box
+# ["block", "box"] 
+# put all sphere blocks in the box.
