@@ -48,7 +48,7 @@ class VideoRecordingWrapper(gym.Wrapper):
         self.video_recoder.stop()
 
     def step(self, action):
-        vis_pcd = True
+        vis_pcd = False
         if not vis_pcd:
             first_step = action["first_step"]
             vis = action["vis"]

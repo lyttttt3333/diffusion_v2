@@ -1,3 +1,0 @@
-# place a ball into a box
-# ["ball", "box"] 
-# put the ball outside the box to the box on the first row and second column.

@@ -31,12 +31,12 @@ from utils.my_utils import NpEncoder, bcolors
 @click.option("-t", "--test_env_path", default=None)
 @click.option("-d", "--device", default="cuda:0")
 @click.option("--max_steps", default=240, type=int)
-@click.option("--n_test", default=100, type=int)
+@click.option("--n_test", default=50, type=int)
 @click.option("--n_train", default=-1, type=int)
 @click.option("--n_test_vis", default=-1, type=int)
 @click.option("--n_train_vis", default=-1, type=int)
 @click.option("--train_start_idx", default=-1, type=int)
-@click.option("--test_start_idx", default=0, type=int)
+@click.option("--test_start_idx", default=50, type=int)
 @click.option("--dataset_dir", default=None, type=str)
 @click.option("--repetitive", default=False, type=bool)
 # @click.option("--vis_3d", default=False, type=bool)
@@ -62,7 +62,6 @@ def main(
     train_obj_ls=[],
     # data_root="",
 ):
-    # test_start_idx = 10000
     # if os.path.exists(output_dir):
     #     click.confirm(
     #         f"{bcolors.WARNING}Output path {output_dir} already exists! Overwrite?{bcolors.ENDC}",
@@ -124,7 +123,7 @@ def main(
         cfg.task.env_runner.train_obj_ls = ["cola"]
         # cfg.task.env_runner.test_obj_ls = ["cola", "pepsi"]
         cfg.task.env_runner.attention_mode = False
-        cfg.task.env_runner.real_time_vis = True
+        cfg.task.env_runner.real_time_vis = False
         cfg.task.env_runner.pca_name = None
         # cfg.task.env_runner.policy_keys = [
         #     "direct_up_view_color",
@@ -148,7 +147,7 @@ def main(
 
     current_file_path = os.path.abspath(__file__)
     current_folder_path = os.path.dirname(current_file_path)
-    test_env_path = "/home/yitong/diffusion/data_train/eval_env_pack_battery" # os.path.join(current_folder_path, "eval_env")
+    test_env_path = "/projects/bcyd/ywang41/baseline/diffusion/eval_env/pack_battery" # os.path.join(current_folder_path, "eval_env")
 
     if test_env_path is None:
         sys.path.append(cfg.task.env_runner.dataset_dir)

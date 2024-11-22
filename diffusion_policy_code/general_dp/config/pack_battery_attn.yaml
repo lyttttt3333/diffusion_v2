@@ -1,16 +1,16 @@
 _target_: diffusion_policy.workspace.train_diffusion_unet_hybrid_workspace.TrainDiffusionUnetHybridWorkspace
 is_real: false
 robot_name: panda
-data_root: /home/yitong/diffusion/diffusion_policy_code/general_dp
-trial_name: data_prepare
-dataset_dir: /home/yitong/diffusion/data_train/battery_2
+data_root: /projects/bcyd/ywang41/baseline/diffusion/diffusion_v2/diffusion_policy_code/general_dp
+trial_name: pack_battery_attn_180_v1
+dataset_dir: /projects/bcyd/ywang41/baseline/diffusion/mat/attn_battery_180
 output_dir: ${dataset_dir}/${trial_name}
 
 obs:
   d3fields:
     shape:
       - 4 # C
-      - 3000 # N
+      - 3600 # N
     type: spatial
     info:
       feats_type: no_feats # no_feats, full, pca # no_feats, full, pca
@@ -138,7 +138,7 @@ task:
   dataset:
     _target_: diffusion_policy.dataset.sapien_dataset.SapienDataset
     dataset_dir: ${dataset_dir}
-    vis_input: true
+    vis_input: false
     device: cuda:0
     horizon: 16
     pad_after: 7

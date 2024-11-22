@@ -767,7 +767,7 @@ def color_pts(full_pts):
         return full_pts
     dist = torch.cdist(tensor_none_attn, tensor_attn)
     min_dist = torch.min(dist, dim=-1)[0]
-    attn_flag = min_dist < 0.016
+    attn_flag = min_dist < 0.01
     attn_flag = attn_flag.cpu().numpy()
     full_pts[:, -1][full_pts[:, -1] == 0] = attn_flag
     return full_pts
@@ -1183,7 +1183,7 @@ def d3fields_proc(
             src_dict["feat"] = aggr_feat.cpu().numpy()
 
 
-            lib_root = "/home/yitong/diffusion/ref_lib"
+            lib_root = "/projects/bcyd/ywang41/baseline/diffusion/diffusion_v2/ref_lib"
             lib_path = os.path.join(lib_root, "pack_battery")
 
             ref_dict = load_ref(lib_path, ["battery", "slot"])
