@@ -460,9 +460,9 @@ if __name__ == "__main__":
     obj_color_pool = ["red mug", "white mug", "blue mug", "green mug"]
 
     parser = argparse.ArgumentParser(description="sum the integers at the command line")
-    parser.add_argument("--start_idx", default=126)
-    parser.add_argument("--end_idx", default=546)
-    parser.add_argument("--dataset_dir", default="/home/yitong/diffusion/data_train/hang_mug_360")
+    parser.add_argument("--start_idx", default=0)
+    parser.add_argument("--end_idx", default=10)
+    parser.add_argument("--dataset_dir", default="/home/yitong/diffusion/data_train/check")
     parser.add_argument("--mode", default="straight")
     parser.add_argument("--task_name", default="hang_mug")
     parser.add_argument("--headless", default=False)
