@@ -300,8 +300,8 @@ class SapienSeriesImageRunner(BaseImageRunner):
         ) as env_pbar:
             action_ls = list()
             for env_idx in range(n_envs):
-                try:
-                #if True:
+                # try:
+                if True:
                     term_size = os.get_terminal_size()
                     print(f"{bcolors.OKBLUE}-{bcolors.ENDC}" * term_size.columns)
                     print(f"{bcolors.OKBLUE}Test {env_idx}{bcolors.ENDC}")
@@ -428,8 +428,8 @@ class SapienSeriesImageRunner(BaseImageRunner):
                         fail_idx.append(env_idx)
                     if len(fail_idx) > 0:
                         print(f"{bcolors.FAIL}Failed tests: {fail_idx}{bcolors.ENDC}")
-                except:
-                #else:
+                # except:
+                else:
                     self.fusion.clear_xmem_memory()         
                     reward = 0     
                     all_rewards[env_idx] = reward     

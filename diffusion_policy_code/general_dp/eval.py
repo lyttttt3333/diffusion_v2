@@ -137,7 +137,7 @@ def main(
         # ]
         cfg.task.env_runner.policy_keys = [
             "d3fields",
-            "embedding",
+            # "embedding",
         ]
         # cfg.task.env_runner.vis_3d = vis_3d
     # add sapien_env from dataset_dir

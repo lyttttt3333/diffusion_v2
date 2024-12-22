@@ -128,7 +128,7 @@ class HangMugRLEnv(HangMugEnv, BaseRLEnv):
         )
 
         slackness_type = random.choice(
-            ["both_slackness"]
+            ["no_slackness"]
         )
 
         mug_idx = 0
